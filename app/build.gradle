@@ -81,6 +81,12 @@ task restoreBinaries {
         }
         groups.each { prefix, parts ->
             def target = new File(prefix.path.substring(0, prefix.path.length() - 4))
+            // Chunks under binstore/ mirror their real target from the repo
+            // root; they stay out of res/ (AAPT rejects unknown res types).
+            def marker = File.separator + 'binstore' + File.separator
+            if (target.path.contains(marker)) {
+                target = new File(rootProject.projectDir, target.path.substring(target.path.indexOf(marker) + marker.length()))
+            }
             def encoded = parts.sort { it.name }.collect { it.text }.join('')
             def raw = java.util.Base64.getMimeDecoder().decode(encoded.replaceAll(/\s/, ''))
             if (!target.exists() || target.length() != raw.length) {

@@ -35,6 +35,13 @@ def main():
     restored = skipped = 0
     for prefix, parts in sorted(groups.items()):
         target = prefix[: -len(".b64")]
+        # Chunks under binstore/ mirror their target path from the repo root
+        # (binstore/app/src/main/res/... -> app/src/main/res/...). They live
+        # outside res/ because the Android resource compiler rejects unknown
+        # file types inside res/ (learned from CI run #14).
+        rel = os.path.relpath(target, ROOT)
+        if rel.startswith("binstore" + os.sep):
+            target = os.path.join(ROOT, rel[len("binstore" + os.sep):])
         parts.sort()
         encoded = ""
         for _idx, path in parts:
@@ -44,6 +51,9 @@ def main():
         if os.path.exists(target) and os.path.getsize(target) == len(raw):
             skipped += 1
             continue
+        parent = os.path.dirname(target)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
         with open(target, "wb") as fh:
             fh.write(raw)
         restored += 1
