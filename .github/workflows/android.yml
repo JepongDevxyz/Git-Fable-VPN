@@ -1,0 +1,40 @@
+name: Android CI
+
+# NOTE (for Jepong): our GitHub App cannot push files under .github/workflows/
+# (403 "Resource not accessible by integration"), so this file is kept in the
+# repo source and must be added via the GitHub web UI (Add file -> Create new
+# file -> .github/workflows/android.yml) with exactly this content, or be part
+# of the initial browser-created repo upload. Once present, every push to main
+# (and manual runs) builds the debug APK.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Git-Fable-VPN-debug
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
