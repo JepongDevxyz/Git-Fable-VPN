@@ -64,6 +64,36 @@ android {
     }
 }
 
+// Binary files in this repo are stored as base64 text chunks
+// (<name>.b64.000.txt, .001, ...) because the publishing channel can only
+// carry text. This task restores them before every build; it is the Gradle
+// twin of restore_binaries.py at the repo root and is idempotent.
+task restoreBinaries {
+    doLast {
+        def groups = [:]
+        rootProject.fileTree(dir: rootProject.projectDir, include: '**/*.b64.*.txt').each { f ->
+            def m = (f.name =~ /^(.*\.b64)\.(\d{3})\.txt$/)
+            if (m.matches()) {
+                def key = new File(f.parentFile, m.group(1))
+                if (!groups.containsKey(key)) groups[key] = []
+                groups[key] << f
+            }
+        }
+        groups.each { prefix, parts ->
+            def target = new File(prefix.path.substring(0, prefix.path.length() - 4))
+            def encoded = parts.sort { it.name }.collect { it.text }.join('')
+            def raw = java.util.Base64.getMimeDecoder().decode(encoded.replaceAll(/\s/, ''))
+            if (!target.exists() || target.length() != raw.length) {
+                target.bytes = raw
+                logger.lifecycle("restoreBinaries: restored ${target}")
+            }
+        }
+    }
+}
+tasks.whenTaskAdded { t ->
+    if (t.name == 'preBuild') t.dependsOn restoreBinaries
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.4.2'

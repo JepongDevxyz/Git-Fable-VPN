@@ -1,0 +1,22 @@
+# Build output
+.gradle/
+build/
+app/build/
+
+# Decoded binaries are restored from their .b64.###.txt chunks
+# (restore_binaries.py / the restoreBinaries Gradle task) — never commit
+# the decoded files themselves.
+*.so
+app/Harliekey.jks
+gradle/wrapper/gradle-wrapper.jar
+app/src/main/res/font/harliefont.otf
+app/src/main/assets/flags/*.png
+app/src/main/assets/networks/*.png
+app/src/main/res/drawable/*.png
+app/src/main/res/drawable/*.jpg
+app/src/main/res/drawable/*.jpeg
+
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
