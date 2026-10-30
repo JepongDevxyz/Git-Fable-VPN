@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Servers / Locations: search + profile list built in ServersActivity from
+     ProfilePrefs (ProfileStore string in HarliesApplication private prefs).
+     Tap = select, long-press = delete. No emoji flags (her rule) — rows show
+     name, host:port and a protocol label chip. Theme tokens only. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <TextView android:id="@+id/cc_srv_back" android:layout_width="48dp" android:layout_height="match_parent"
+            android:text="←" android:textColor="@color/cc_ink" android:textSize="20sp" android:gravity="center"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Servers" android:textColor="@color/cc_ink" android:textSize="17sp"
+            android:textStyle="bold" android:gravity="center"/>
+        <TextView android:id="@+id/cc_srv_generator" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Generator" android:textColor="@color/cc_ink" android:textSize="14sp"
+            android:background="@drawable/cc_chip" android:paddingHorizontal="14dp" android:paddingVertical="8dp"/>
+        <TextView android:id="@+id/cc_srv_import" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Import" android:textColor="@color/cc_ink" android:textSize="14sp"
+            android:background="@drawable/cc_chip" android:paddingHorizontal="14dp" android:paddingVertical="8dp"/>
+    </LinearLayout>
+
+    <EditText android:id="@+id/cc_srv_search" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:hint="Search servers" android:textColorHint="@color/cc_muted"
+        android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_input"
+        android:paddingHorizontal="14dp" android:paddingVertical="10dp" android:singleLine="true"/>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout android:id="@+id/cc_srv_list" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:background="@drawable/cc_card" android:padding="8dp"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView android:id="@+id/cc_srv_hint" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp" android:paddingVertical="10dp"
+        android:text="Tap a server to select it. Long-press a server to delete it."
+        android:textColor="@color/cc_muted" android:textSize="12sp" android:gravity="center"/>
+</LinearLayout>

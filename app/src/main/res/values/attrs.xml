@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<declare-styleable name="DataGraph">
+        <attr name="dg_colorDown" format="color" />
+        <attr name="dg_colorUp" format="color" />
+        <attr name="dg_colorText" format="color" />
+    </declare-styleable>
+
+	<declare-styleable name="Graph">
+		<attr name="lineColor" format="color"/>
+		<attr name="lineUpColor" format="color"/>
+		<attr name="lineDownColor" format="color"/>
+	</declare-styleable>
+
+	<declare-styleable name="CircleProgressBar">
+		<attr name="min" format="integer" />
+		<attr name="max" format="integer" />
+		<attr name="progress" format="integer" />
+		<attr name="progressbarColor" format="color" />
+		<attr name="progressBarThickness" format="dimension" />
+	</declare-styleable>
+
+</resources>

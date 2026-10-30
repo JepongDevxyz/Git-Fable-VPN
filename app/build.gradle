@@ -1,0 +1,79 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdk 33
+    buildToolsVersion "33.0.0"
+
+    defaultConfig {
+        applicationId "com.jepongdevxyz.fablevpn"
+        minSdk 21
+        targetSdk 33
+        versionCode 22
+        versionName "1.1.1"
+    }
+    signingConfigs {
+        release {
+            keyAlias 'Harlie'
+            keyPassword 'Harlie1990'
+            storeFile file('Harliekey.jks')
+            storePassword 'Harlie1990'
+            v1SigningEnabled true
+            v2SigningEnabled true
+            enableV3Signing true
+        }
+    }
+    buildTypes.each {
+        it.buildConfigField "String" , "XPTUNNELCONFIGURL", xptunnelconfigurl
+        it.buildConfigField "String" , "XPTUNNELCONFIG", xptunnelconfig
+        it.buildConfigField "String" , "XPTUNNELUDPCONFIG", xptunneludpconfig
+    }
+    buildTypes {
+        release {
+            // Security hardening: R8 obfuscation ON for release only, with
+            // conservative keeps (proguard-rules.pro) and resource shrinking
+            // OFF so layouts/assets the VPN UI loads reflectively stay intact.
+            // Debug stays unminified for CI phone tests.
+            minifyEnabled true
+            shrinkResources false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    bundle {
+        storeArchive {enable = false}
+        language {enableSplit = false}
+        density {enableSplit = true}
+        abi {enableSplit = true}
+    }
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+      }
+    
+    compileOptions {
+		sourceCompatibility JavaVersion.VERSION_11
+		targetCompatibility JavaVersion.VERSION_11
+	}
+	
+	lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.mcxiaoke.volley:library:1.0.19'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+}

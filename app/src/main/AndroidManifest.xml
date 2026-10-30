@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	package="com.jepongdevxyz.fablevpn">
+
+	<supports-screens
+		android:anyDensity="true"
+		android:largeScreens="true"
+		android:normalScreens="true"
+		android:smallScreens="true"
+		android:xlargeScreens="true" />
+    
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	<uses-permission android:name="android.permission.WAKE_LOCK"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+	<uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_ASSISTANT_APP_SEARCH_DATA" />
+	<uses-permission android:name="android.permission.RUN_IN_BACKGROUND"
+		tools:ignore="ProtectedPermissions" />
+
+	<application
+		android:allowBackup="true"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme"
+		android:icon="@drawable/ic_launcher"
+		android:supportsRtl="true"
+		android:extractNativeLibs="true"
+		android:usesCleartextTraffic="true"
+		android:resizeableActivity="true"
+		android:requestLegacyExternalStorage="true"
+		android:name="jayar.lee.espiritu.HarliesApplication">
+        
+		<meta-data
+			android:name="android.max_aspect"
+			android:value="4.0"/>
+		<uses-library
+			android:name="org.apache.http.legacy"
+			android:required="false" />
+		<service
+			android:name="jayar.lee.espiritu.service.InjectorService"
+			android:exported="true"/>
+		<service android:name="jayar.lee.espiritu.service.OpenVPNService"
+			android:permission="android.permission.BIND_VPN_SERVICE"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.net.VpnService" />
+			</intent-filter>
+		</service>
+		<activity
+			android:name="jayar.lee.espiritu.activities.SplashScreen"
+			android:theme="@style/SplashTheme"
+			android:label="@string/app_name"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:windowSoftInputMode="stateHidden|adjustPan"
+			android:name="jayar.lee.espiritu.activities.OpenVPNClient"
+			android:theme="@style/AppTheme"
+			android:launchMode="singleTask"
+			android:exported="true">
+		</activity>
+		<receiver android:name="jayar.lee.espiritu.MainReceiver"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+			</intent-filter>
+		</receiver>
+		<activity
+			android:name="jayar.lee.espiritu.activities.NexusHomeActivity"
+			android:label="Git Fable VPN"
+			android:exported="false"/>
+		<activity
+			android:name="jayar.lee.espiritu.activities.AccountActivity"
+			android:label="My Account"
+			android:exported="false"/>
+		<activity
+			android:name="jayar.lee.espiritu.activities.NexusSettingsActivity"
+			android:label="Settings"
+			android:exported="false"/>
+		<activity
+			android:name="jayar.lee.espiritu.activities.ServersActivity"
+			android:label="Servers"
+			android:exported="false"/>
+		<activity
+			android:name="jayar.lee.espiritu.activities.ImportActivity"
+			android:label="Import Profiles"
+			android:exported="true">
+			<!-- Deep-link import: gitfablevpn://import?d=<base64url payload> -->
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.BROWSABLE"/>
+				<data android:scheme="gitfablevpn" android:host="import"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="jayar.lee.espiritu.activities.GeneratorActivity"
+			android:label="Server Generator"
+			android:exported="false"/>
+		<activity
+			android:name="jayar.lee.espiritu.logger.HarlieLogs"
+			android:label="HLogs"
+			android:parentActivityName="jayar.lee.espiritu.activities.OpenVPNClient"/>
+	</application>
+     <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+        </intent>
+    </queries>
+</manifest>
+

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Account / own userpass — opened from the profile icon on Home (top right).
+     Fields write the SAME preference keys the original Home fields used
+     (_screenUsername_key / _screenPassword_key in HarliesApplication private
+     prefs), so the existing connect flow (config.setUser/setUserPass) keeps
+     working unchanged — only the PLACE moved, per her order. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <TextView android:id="@+id/cc_acc_back" android:layout_width="48dp" android:layout_height="match_parent"
+            android:text="←" android:textColor="@color/cc_ink" android:textSize="20sp" android:gravity="center"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="My Account" android:textColor="@color/cc_ink" android:textSize="17sp"
+            android:textStyle="bold" android:gravity="center"/>
+        <TextView android:layout_width="48dp" android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_margin="16dp" android:background="@drawable/cc_card"
+        android:orientation="vertical" android:padding="18dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="May own account ka? Dito mo ilagay ang username at password mo para maka-connect."
+            android:textColor="@color/cc_muted" android:textSize="13sp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:text="Username" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+        <EditText android:id="@+id/cc_acc_username" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:hint="Username" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+            android:singleLine="true" android:inputType="text"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="Password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+        <EditText android:id="@+id/cc_acc_password" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="6dp" android:hint="Password" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+            android:singleLine="true" android:inputType="textPassword"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="Show password" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+            <Switch android:id="@+id/cc_acc_showpw" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <TextView android:id="@+id/cc_acc_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:text="Auto-saved habang nagta-type ka — gagamitin ito sa pag-connect."
+            android:textColor="@color/cc_connected" android:textSize="12sp"/>
+
+        <TextView android:id="@+id/cc_acc_clear" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp" android:text="Clear account" android:gravity="center"
+            android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+            android:paddingVertical="11dp"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nexus-inspired Settings: VPN Protocols (search + radio list) + Quick Toggles.
+     Rows are built in NexusSettingsActivity from the real Protocol model and
+     TunnelSettings keys — every row/switch is wired to a real handler. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <TextView android:id="@+id/cc_set_back" android:layout_width="48dp" android:layout_height="match_parent"
+            android:text="←" android:textColor="@color/cc_ink" android:textSize="20sp" android:gravity="center"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="VPN Protocols" android:textColor="@color/cc_ink" android:textSize="17sp"
+            android:textStyle="bold" android:gravity="center"/>
+        <TextView android:layout_width="48dp" android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <EditText android:id="@+id/cc_protocol_search" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:hint="Search" android:textColorHint="@color/cc_muted"
+        android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_input"
+        android:paddingHorizontal="14dp" android:paddingVertical="10dp" android:singleLine="true"/>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout android:id="@+id/cc_protocol_list" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:background="@drawable/cc_card" android:padding="8dp"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="20dp" android:layout_marginBottom="8dp"
+                android:text="Quick Toggles" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+
+            <LinearLayout android:id="@+id/cc_toggle_list" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:orientation="vertical"
+                android:background="@drawable/cc_card" android:padding="8dp"/>
+
+            <TextView android:id="@+id/cc_settings_note" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" android:textColor="@color/cc_muted" android:textSize="12sp"
+                android:text="Changes apply to the next connection; an active tunnel restarts to apply Kill Switch / DNS changes."/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

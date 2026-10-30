@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@android:color/transparent"/>
+            <stroke android:width="10dp" android:color="@color/cc_connected_glow"/>
+        </shape>
+    </item>
+    <item android:left="12dp" android:top="12dp" android:right="12dp" android:bottom="12dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/cc_card_alt"/>
+            <stroke android:width="2dp" android:color="@color/cc_connected"/>
+        </shape>
+    </item>
+</layer-list>

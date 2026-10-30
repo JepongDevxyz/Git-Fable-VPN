@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nexus-inspired Home (her reference) — Git Fable VPN branding, theme tokens only. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="GIT FABLE VPN" android:textColor="@color/cc_ink" android:textSize="17sp" android:textStyle="bold"/>
+        <!-- Profile icon (top right, like the reference): opens AccountActivity —
+             the user/pass entry place. Her order: own-account userpass lives HERE. -->
+        <ImageView android:id="@+id/cc_home_account" android:layout_width="38dp" android:layout_height="38dp"
+            android:src="@drawable/ic_username" android:contentDescription="My Account"
+            android:background="@drawable/cc_chip" android:padding="8dp"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingBottom="16dp">
+
+            <FrameLayout android:id="@+id/cc_connect_ring" android:layout_width="190dp" android:layout_height="190dp"
+                android:layout_gravity="center_horizontal" android:layout_marginTop="10dp"
+                android:background="@drawable/cc_ring">
+                <TextView android:id="@+id/cc_connect_text" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="TAP TO CONNECT" android:textColor="@color/cc_ink"
+                    android:textSize="15sp" android:textStyle="bold" android:gravity="center"/>
+            </FrameLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card"
+                android:orientation="vertical" android:padding="16dp">
+                <TextView android:id="@+id/cc_ip_line" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Your IP is Secured: —" android:textColor="@color/cc_ink" android:textSize="14sp" android:gravity="center"/>
+                <TextView android:id="@+id/cc_location_line" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:text="Location: —" android:textColor="@color/cc_ink" android:textSize="14sp" android:gravity="center"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center">
+                    <TextView android:id="@+id/cc_ping_line" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Ping: —" android:textColor="@color/cc_connected" android:textSize="13sp"/>
+                    <TextView android:id="@+id/cc_uptime_line" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp" android:text="Uptime: 00:00:00" android:textColor="@color/cc_connected" android:textSize="13sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:id="@+id/cc_protocol_chip" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" android:layout_marginTop="14dp"
+                android:text="Protocol: Auto" android:textColor="@color/cc_ink" android:textSize="13sp"
+                android:background="@drawable/cc_chip" android:paddingHorizontal="16dp" android:paddingVertical="8dp"/>
+
+            <TextView android:id="@+id/cc_open_generator" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" android:layout_marginTop="8dp"
+                android:text="Server Generator" android:textColor="@color/cc_ink" android:textSize="13sp"
+                android:background="@drawable/cc_chip" android:paddingHorizontal="16dp" android:paddingVertical="8dp"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" android:background="@drawable/cc_card"
+                android:orientation="vertical" android:padding="14dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Uploading" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+                        <TextView android:id="@+id/cc_up_speed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Mbps" android:textColor="@color/cc_graph_up" android:textSize="14sp" android:textStyle="bold"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="end">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Downloading" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+                        <TextView android:id="@+id/cc_down_speed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Mbps" android:textColor="@color/cc_graph_down" android:textSize="14sp" android:textStyle="bold"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <com.github.mikephil.charting.charts.LineChart android:id="@+id/cc_chart"
+                    android:layout_width="match_parent" android:layout_height="110dp" android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_change_location" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="14dp" android:background="@drawable/cc_btn_primary"
+                android:orientation="vertical" android:padding="14dp" android:gravity="center">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Change Location" android:textColor="@color/cc_on_accent" android:textSize="15sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/cc_current_server" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Current server: —" android:textColor="@color/cc_on_accent" android:textSize="12sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout android:id="@+id/cc_bottom_nav" android:layout_width="match_parent" android:layout_height="60dp"
+        android:orientation="horizontal" android:background="@color/cc_card" android:gravity="center">
+        <TextView android:id="@+id/cc_nav_home" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Home" android:gravity="center" android:textColor="@color/cc_connected" android:textSize="12sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/cc_nav_locations" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Locations" android:gravity="center" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+        <TextView android:id="@+id/cc_nav_stats" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Statistics" android:gravity="center" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+        <TextView android:id="@+id/cc_nav_settings" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="Settings" android:gravity="center" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+    </LinearLayout>
+</LinearLayout>

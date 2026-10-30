@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Import: paste share links / subscription / WireGuard .conf / .ovpn text,
+     import from clipboard, or Jepong VPS Quick-Add (JepongVpsFactory.buildAll).
+     Every control is wired in ImportActivity. Theme tokens only. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <TextView android:id="@+id/cc_imp_back" android:layout_width="48dp" android:layout_height="match_parent"
+            android:text="←" android:textColor="@color/cc_ink" android:textSize="20sp" android:gravity="center"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Import Profiles" android:textColor="@color/cc_ink" android:textSize="17sp"
+            android:textStyle="bold" android:gravity="center"/>
+        <TextView android:layout_width="48dp" android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Paste share links (vless, vmess, trojan, ss, hy2, wireguard), a subscription, a WireGuard .conf, or an .ovpn config."
+                    android:textColor="@color/cc_muted" android:textSize="13sp"/>
+
+                <EditText android:id="@+id/cc_imp_text" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:minLines="5" android:gravity="top"
+                    android:hint="Paste here" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:textSize="13sp" android:background="@drawable/cc_input"
+                    android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:inputType="textMultiLine|textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Config password (only for GFVENC1 encrypted text)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_imp_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="Password used when the config was exported" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:id="@+id/cc_imp_clipboard" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Import from clipboard" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+
+                <TextView android:id="@+id/cc_imp_add" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:text="Add profiles" android:gravity="center"
+                    android:textColor="@color/cc_on_accent" android:textSize="15sp" android:textStyle="bold"
+                    android:background="@drawable/cc_btn_primary" android:paddingVertical="13dp"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:layout_marginBottom="8dp"
+                android:text="Subscription URL" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Fetch a subscription (share-link list) from any URL. Turn on auto-update and the Servers screen refreshes from it when opened. Any URL works — nothing here depends on a raw GitHub link."
+                    android:textColor="@color/cc_muted" android:textSize="13sp"/>
+
+                <EditText android:id="@+id/cc_imp_url" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:hint="https://example.com/sub" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textUri"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Auto-update on Servers open" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_imp_autoupdate" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/cc_imp_fetch" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Fetch and import now" android:gravity="center"
+                    android:textColor="@color/cc_on_accent" android:textSize="15sp" android:textStyle="bold"
+                    android:background="@drawable/cc_btn_primary" android:paddingVertical="13dp"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:layout_marginBottom="8dp"
+                android:text="Jepong VPS Quick-Add" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Fill in the values from your VPS install output (/etc/jepongvpn/) — this creates all 13 service profiles at once."
+                    android:textColor="@color/cc_muted" android:textSize="13sp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:text="VPS domain" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_domain" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="vpn.example.com" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textUri"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="VLESS UUID" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_vless_uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="UUID_VLESS from xray-creds.txt" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="VMess UUID" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_vmess_uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="UUID_VMESS from xray-creds.txt" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Trojan password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_trojan_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="TROJAN_PASS from xray-creds.txt" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Shadowsocks password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_ss_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="shadowsocks-pass.txt (aes-256-gcm, 8388)" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Hysteria2 password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_hy2_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="hysteria-pass.txt (UDP 4443)" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="SSH username" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_ssh_user" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="SSH user" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="SSH password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_ssh_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="SSH password" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="SlowDNS NS domain" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_ns" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="t.vpn.example.com" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textUri"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="SlowDNS server public key (dnstt)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_pubkey" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="/etc/dnstt/server.pub" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="UDP Custom PSK" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_qa_udp_psk" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="PSK from /etc/udp_custom/config.server.json" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+
+                <TextView android:id="@+id/cc_qa_add" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp" android:text="Add all 13 Jepong VPS profiles" android:gravity="center"
+                    android:textColor="@color/cc_on_accent" android:textSize="15sp" android:textStyle="bold"
+                    android:background="@drawable/cc_btn_primary" android:paddingVertical="13dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
