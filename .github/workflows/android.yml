@@ -19,6 +19,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Restore binary files from base64 chunks
+        run: python3 restore_binaries.py
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
