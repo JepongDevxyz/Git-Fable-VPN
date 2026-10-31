@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
 import com.jepongdevxyz.fablevpn.R;
 import jayar.lee.espiritu.protocols.ServerProfile;
 import jayar.lee.espiritu.protocols.TunnelSettings;
@@ -46,6 +47,11 @@ public class NexusHomeActivity extends Activity {
 
         protocolChip = findViewById(R.id.cc_protocol_chip);
         currentServer = findViewById(R.id.cc_current_server);
+
+        // No live data is bound to the Home chart yet — blank the library's
+        // default "No chart data available." placeholder text.
+        LineChart chart = findViewById(R.id.cc_chart);
+        if (chart != null) chart.setNoDataText("");
 
         findViewById(R.id.cc_home_account).setOnClickListener(v ->
             startActivity(new Intent(this, AccountActivity.class)));

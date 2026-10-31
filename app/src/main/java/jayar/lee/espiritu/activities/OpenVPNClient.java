@@ -144,9 +144,9 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
         xPass.setEnabled(!isRunning);
         findViewById(R.id.ac_ly).setVisibility(mPref.getBoolean("isAutoLogIn",false)?View.GONE:View.VISIBLE);
         if(isConnected==false){
-            btn_connector.setBackgroundResource(R.drawable.connect_button);
-            circleProgressBar.setColor(Color.RED);
-            status_view.setTextColor(Color.RED);
+            btn_connector.setBackgroundResource(R.drawable.cc_power_button);
+            circleProgressBar.setColor(getResources().getColor(R.color.cc_error));
+            status_view.setTextColor(getResources().getColor(R.color.cc_error));
         }
     }
 
@@ -156,9 +156,9 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
             isConnected = state.equals(resString(R.string.state_connected))?true:false;
             status_view.setText(state);
             if(hLogStatus.isTunnelActive()&&!isConnected){
-                btn_connector.setBackgroundResource(R.drawable.connect_button);
-                circleProgressBar.setColor(Color.RED);
-                status_view.setTextColor(Color.RED);
+                btn_connector.setBackgroundResource(R.drawable.cc_power_button);
+                circleProgressBar.setColor(getResources().getColor(R.color.cc_error));
+                status_view.setTextColor(getResources().getColor(R.color.cc_error));
             }
             circleProgressBar.setProgressWithAnimation(hLogStatus.isTunnelActive()?progress:0);
             doUpdateLayout();
@@ -166,9 +166,9 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
         switch (state) {
             case hLogStatus.VPN_CONNECTED:
                 isConnected = true;
-                btn_connector.setBackgroundResource(R.drawable.disconnect_button);
-                circleProgressBar.setColor(Color.GREEN);
-                status_view.setTextColor(Color.GREEN);
+                btn_connector.setBackgroundResource(R.drawable.cc_power_button_connected);
+                circleProgressBar.setColor(getResources().getColor(R.color.cc_connected));
+                status_view.setTextColor(getResources().getColor(R.color.cc_connected));
                 
                 showExpireDate();
                 break;
@@ -424,7 +424,7 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
                 return;
             }
             ac_xp.setText("Checking account...");
-            ac_xp.setTextColor(Color.WHITE);
+            ac_xp.setTextColor(getResources().getColor(R.color.cc_ink));
             String model = Build.MODEL;
             String id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
             StringRequest req = new StringRequest(String.format(full_api, user, pass, id, model), response -> {
@@ -435,7 +435,7 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
                         stopTunnelService();
                         mEditor.putString("_AccountXp",resString(R.string.state_auth_failed)).apply();
                         ac_xp.setText(resString(R.string.state_auth_failed));
-                        ac_xp.setTextColor(Color.RED);
+                        ac_xp.setTextColor(getResources().getColor(R.color.cc_error));
                         return;
                     }
                     JSONObject mData = js.getJSONObject("data");
@@ -443,12 +443,12 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
                         stopTunnelService();
                         mEditor.putString("_AccountXp","This account using other device!").apply();
                         ac_xp.setText("This account using other device!");
-                        ac_xp.setTextColor(Color.RED);
+                        ac_xp.setTextColor(getResources().getColor(R.color.cc_error));
                         return;
                     }
                     mEditor.putString("_AccountXp",getDaysLeft(mData.getString("expiry"))).apply();
                     ac_xp.setText(getDaysLeft(mData.getString("expiry")));
-                    ac_xp.setTextColor(Color.GREEN);
+                    ac_xp.setTextColor(getResources().getColor(R.color.cc_connected));
                 } catch (Exception e) {
                     isShowExpireDateRunning = false;
                     mEditor.putString("_AccountXp","Expiry date failed to load!").apply();
@@ -457,14 +457,14 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
             }, error -> {
                 mEditor.putString("_AccountXp","Expiry date failed to load!").apply();
                 ac_xp.setText("Expiry date failed to load!");
-                ac_xp.setTextColor(Color.RED);
+                ac_xp.setTextColor(getResources().getColor(R.color.cc_error));
             });
             RequestQueue requestQueue = Volley.newRequestQueue(this);
             requestQueue.add(req);
         }catch (Exception e){
             mEditor.putString("_AccountXp","Expiry date failed to load!").apply();
             ac_xp.setText("Expiry date failed to load!");
-            ac_xp.setTextColor(Color.RED);
+            ac_xp.setTextColor(getResources().getColor(R.color.cc_error));
         }
     }
     private static boolean isShowExpireDateRunning = false;
@@ -881,9 +881,9 @@ public class OpenVPNClient extends OpenVPNClientBase implements hLogStatus.State
     public void stopTunnelService(){
         if (hLogStatus.isTunnelActive()){
             circleProgressBar.setProgressWithAnimation(0);
-            circleProgressBar.setColor(Color.RED);
-            btn_connector.setBackgroundResource(R.drawable.connect_button);
-            status_view.setTextColor(Color.RED);
+            circleProgressBar.setColor(getResources().getColor(R.color.cc_error));
+            btn_connector.setBackgroundResource(R.drawable.cc_power_button);
+            status_view.setTextColor(getResources().getColor(R.color.cc_error));
             submitDisconnectIntent(mConfig.getNetworkType().equals("UDP")?0:1);
         }
     }

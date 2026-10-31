@@ -9,6 +9,7 @@
     <color name="cc_muted">#8FA3C4</color>
     <color name="cc_accent">#4F8CFF</color>
     <color name="cc_accent2">#7C5CFF</color>
+    <color name="cc_error">#FF6B6B</color>
     <color name="cc_connected">#22E07A</color>
     <color name="cc_connected_glow">#3DFF7A</color>
     <color name="cc_disconnected">#5F7194</color>

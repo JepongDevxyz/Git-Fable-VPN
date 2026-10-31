@@ -5,51 +5,52 @@
      xmlns:tools="http://schemas.android.com/tools"
      android:layout_height="match_parent"
      android:layout_width="match_parent"
-     android:background="@drawable/ic_bgcore"
+     android:background="@color/cc_bg"
      android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
          android:layout_height="50dp"
          android:layout_width="match_parent"
-         android:background="@color/transfigure"
-         app:cardBackgroundColor="@color/transfigure"
+         android:background="@android:color/transparent"
+         app:cardBackgroundColor="@android:color/transparent"
          android:id="@+id/main_toolbar">
 
         <LinearLayout
              android:layout_height="50dp"
              android:layout_width="match_parent"
              android:gravity="center"
-             android:background="@color/transfigure"
+             android:background="@android:color/transparent"
              android:orientation="vertical"
-             app:cardBackgroundColor="@color/transfigure">
+             app:cardBackgroundColor="@android:color/transparent">
 
             <LinearLayout
                  android:layout_height="wrap_content"
                  android:layout_width="match_parent"
                  android:gravity="center"
-                 android:background="@color/transfigure"
+                 android:background="@android:color/transparent"
                  android:orientation="horizontal"
-                 app:cardBackgroundColor="@color/transfigure">
+                 app:cardBackgroundColor="@android:color/transparent">
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:gravity="center|bottom"
-                     android:background="@color/transfigure"
+                     android:background="@android:color/transparent"
                      android:textAppearance="@style/ToolbarTitleTheme"
-                     app:cardBackgroundColor="@color/transfigure"
-                     android:textColor="#ff0000"
+                     app:cardBackgroundColor="@android:color/transparent"
+                     android:textColor="@color/cc_ink"
                      android:text="Git Fable" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:gravity="center|bottom"
-                     android:background="@color/transfigure"
+                     android:background="@android:color/transparent"
                      android:textAppearance="@style/ToolbarTitleTheme"
-                     app:cardBackgroundColor="@color/transfigure"
+                     app:cardBackgroundColor="@android:color/transparent"
                      android:layout_marginLeft="5dp"
-                     android:text="OVPN" />
+                     android:textColor="@color/cc_ink"
+                     android:text="VPN" />
 
             </LinearLayout>
 
@@ -135,7 +136,7 @@
                      android:layout_width="wrap_content"
                      android:layout_centerInParent="true"
                      android:textSize="13sp"
-                     android:textColor="#000000"
+                     android:textColor="@color/cc_ink"
                      android:layout_marginTop="0dp"
                      android:typeface="serif"
                      android:layout_marginBottom="3dp"
@@ -162,7 +163,7 @@
                          android:gravity="center"
                          android:textAppearance="?android:attr/textAppearanceSmall"
                          android:textSize="11sp"
-                         android:textColor="#000000"
+                         android:textColor="@color/cc_muted"
                          android:id="@+id/bytes_in"
                          android:layout_gravity="center"
                          android:text="0 KB"
@@ -172,7 +173,7 @@
                          android:layout_height="15dp"
                          android:layout_width="25dp"
                          android:src="@drawable/jepong_down"
-                         app:tint="#000000"
+                         app:tint="@color/cc_muted"
                          android:layout_gravity="center" />
 
                 </LinearLayout>
@@ -191,7 +192,7 @@
                          android:layout_height="15dp"
                          android:layout_width="25dp"
                          android:src="@drawable/jepong_up"
-                         app:tint="#000000"
+                         app:tint="@color/cc_muted"
                          android:layout_gravity="center" />
 
                     <TextView
@@ -200,7 +201,7 @@
                          android:gravity="center"
                          android:textAppearance="?android:attr/textAppearanceSmall"
                          android:textSize="11sp"
-                         android:textColor="#000000"
+                         android:textColor="@color/cc_muted"
                          android:id="@+id/bytes_out"
                          android:layout_gravity="center"
                          android:text="0 KB"
@@ -215,7 +216,7 @@
                  android:layout_width="wrap_content"
                  android:paddingRight="10dp"
                  android:textSize="18sp"
-                 android:textColor="#ff0000"
+                 android:textColor="@color/cc_muted"
                  android:layout_marginTop="0dp"
                  android:layout_gravity="center"
                  android:gravity="center"
@@ -248,7 +249,7 @@
                          android:gravity="center"
                          android:textAppearance="?android:attr/textAppearanceSmall"
                          android:textSize="10sp"
-                         android:textColor="#000000"
+                         android:textColor="@color/cc_muted"
                          android:layout_marginStart="2dp"
                          android:layout_gravity="center"
                          android:text="Config Version"
@@ -269,7 +270,7 @@
                      android:gravity="center"
                      android:textAppearance="?android:attr/textAppearanceMedium"
                      android:textSize="10sp"
-                     android:textColor="#000000"
+                     android:textColor="@color/cc_ink"
                      android:layout_marginStart="2dp"
                      android:id="@+id/config_version"
                      android:layout_gravity="center"
@@ -330,7 +331,7 @@
                                  android:layout_width="match_parent"
                                  android:layout_marginBottom="5dp"
                                  android:layout_marginEnd="5dp"
-                                 android:background="@drawable/spinner_bg_new"
+                                 android:background="@drawable/cc_input"
                                  android:gravity="center"
                                  android:orientation="horizontal"
                                  android:layout_marginStart="5dp">
@@ -346,7 +347,7 @@
                                          android:layout_height="30dp"
                                          android:layout_width="30dp"
                                          android:layout_marginEnd="0dp"
-                                         app:tint="@color/black"
+                                         app:tint="@color/cc_muted"
                                          android:layout_marginStart="15dp"
                                          app:srcCompat="@drawable/server_locations"
                                          android:layout_gravity="center" />
@@ -402,7 +403,7 @@
                                  android:layout_width="match_parent"
                                  android:layout_marginBottom="5dp"
                                  android:layout_marginEnd="5dp"
-                                 android:background="@drawable/spinner_bg_new"
+                                 android:background="@drawable/cc_input"
                                  android:gravity="center"
                                  android:orientation="horizontal"
                                  android:layout_marginStart="5dp">
@@ -418,7 +419,7 @@
                                          android:layout_height="30dp"
                                          android:layout_width="30dp"
                                          android:layout_marginEnd="0dp"
-                                         app:tint="@color/black"
+                                         app:tint="@color/cc_muted"
                                          android:layout_marginStart="15dp"
                                          app:srcCompat="@drawable/network_option"
                                          android:layout_gravity="center" />
@@ -469,7 +470,7 @@
                                  android:layout_marginBottom="5dp"
                                  android:visibility="visible"
                                  android:layout_marginEnd="5dp"
-                                 android:background="@drawable/card_frame"
+                                 android:background="@drawable/cc_input"
                                  android:gravity="center"
                                  android:orientation="horizontal"
                                  android:layout_marginStart="5dp">
@@ -485,7 +486,7 @@
                                          android:layout_height="30dp"
                                          android:layout_width="30dp"
                                          android:layout_marginEnd="8dp"
-                                         app:tint="@color/black"
+                                         app:tint="@color/cc_muted"
                                          android:layout_marginStart="16dp"
                                          app:srcCompat="@drawable/ic_username"
                                          android:layout_gravity="center" />
@@ -497,7 +498,7 @@
                                          android:background="@null"
                                          android:hint="Username (For Premium or Private Account)"
                                          android:textSize="13dp"
-                                         android:textColor="@color/colorAccent"
+                                         android:textColor="@color/cc_ink"
                                          android:maxLines="1"
                                          android:layout_weight="1"
                                          tools:ignore="NestedWeights"
@@ -521,7 +522,7 @@
                                      android:layout_marginBottom="5dp"
                                      android:visibility="visible"
                                      android:layout_marginEnd="5dp"
-                                     android:background="@drawable/card_frame"
+                                     android:background="@drawable/cc_input"
                                      android:gravity="center"
                                      android:orientation="horizontal"
                                      android:layout_marginStart="5dp">
@@ -537,7 +538,7 @@
                                              android:layout_height="30dp"
                                              android:layout_width="30dp"
                                              android:layout_marginEnd="8dp"
-                                             app:tint="@color/black"
+                                             app:tint="@color/cc_muted"
                                              android:layout_marginStart="15dp"
                                              app:srcCompat="@drawable/ic_password"
                                              android:layout_gravity="center" />
@@ -547,7 +548,7 @@
                                              android:layout_width="0dp"
                                              android:layout_marginEnd="10dp"
                                              android:textSize="13sp"
-                                             android:textColor="@color/colorAccent"
+                                             android:textColor="@color/cc_ink"
                                              tools:ignore="NestedWeights"
                                              android:background="@null"
                                              android:hint="Password (For Premium or Private Account)"
@@ -571,7 +572,7 @@
                              android:visibility="gone"
                              android:paddingRight="10dp"
                              android:textSize="12sp"
-                             android:textColor="#FFFFFF"
+                             android:textColor="@color/cc_muted"
                              android:layout_marginTop="5dp"
                              android:layout_gravity="center"
                              android:gravity="center"
@@ -619,7 +620,7 @@
                      android:layout_height="110dp"
                      android:layout_width="110dp"
                      android:layout_centerInParent="true"
-                     android:background="@drawable/connect_button"
+                     android:background="@drawable/cc_power_button"
                      android:id="@+id/btn_connect" />
 
             </RelativeLayout>
@@ -632,7 +633,7 @@
          android:layout_height="50dp"
          android:layout_width="match_parent"
          app:cardElevation="@dimen/cardview_default_radius"
-         app:cardBackgroundColor="@color/transfigure"
+         app:cardBackgroundColor="@color/cc_card"
          android:layout_alignParentBottom="true">
 
         <LinearLayout
@@ -653,12 +654,13 @@
                      android:layout_height="20dp"
                      android:layout_width="20dp"
                      android:src="@drawable/bb"
-                     app:tint="#FFFFFF" />
+                     app:tint="@color/cc_muted" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:textAppearance="@style/ToolbarSubtitleTheme"
+                     android:textColor="@color/cc_muted"
                      android:text="Resources" />
 
             </LinearLayout>
@@ -675,12 +677,13 @@
                      android:layout_height="20dp"
                      android:layout_width="20dp"
                      android:src="@drawable/importfile"
-                     app:tint="#FFFFFF" />
+                     app:tint="@color/cc_muted" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:textAppearance="@style/ToolbarSubtitleTheme"
+                     android:textColor="@color/cc_muted"
                      android:text="Import" />
 
             </LinearLayout>
@@ -698,12 +701,13 @@
                      android:layout_height="20dp"
                      android:layout_width="20dp"
                      android:src="@drawable/ic_webhook"
-                     app:tint="#FFFFFF" />
+                     app:tint="@color/cc_muted" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:textAppearance="@style/ToolbarSubtitleTheme"
+                     android:textColor="@color/cc_muted"
                      android:text="IP Hunter" />
 
             </LinearLayout>
@@ -720,12 +724,13 @@
                      android:layout_height="20dp"
                      android:layout_width="20dp"
                      android:src="@drawable/ocx"
-                     app:tint="#FFFFFF" />
+                     app:tint="@color/cc_muted" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:textAppearance="@style/ToolbarSubtitleTheme"
+                     android:textColor="@color/cc_muted"
                      android:text="Logs" />
 
             </LinearLayout>
@@ -742,12 +747,13 @@
                      android:layout_height="20dp"
                      android:layout_width="20dp"
                      android:src="@drawable/lp"
-                     app:tint="#FFFFFF" />
+                     app:tint="@color/cc_muted" />
 
                 <TextView
                      android:layout_height="wrap_content"
                      android:layout_width="wrap_content"
                      android:textAppearance="@style/ToolbarSubtitleTheme"
+                     android:textColor="@color/cc_muted"
                      android:text="Developer" />
 
             </LinearLayout>

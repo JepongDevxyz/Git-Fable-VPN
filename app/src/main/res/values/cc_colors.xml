@@ -10,6 +10,7 @@
     <color name="cc_muted">#5B6B8A</color>
     <color name="cc_accent">#2F7BFF</color>
     <color name="cc_accent2">#7C5CFF</color>
+    <color name="cc_error">#E5484D</color>
     <color name="cc_connected">#0DBD5B</color>
     <color name="cc_connected_glow">#3DFF7A</color>
     <color name="cc_disconnected">#8A97B1</color>
