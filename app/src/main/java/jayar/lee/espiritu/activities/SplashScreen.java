@@ -58,7 +58,7 @@ public class SplashScreen extends AppCompatActivity
                                 if(waited==3){
                                     scheduler.shutdown();
                                     waited = 0;
-                                    Intent intent = new Intent(SplashScreen.this,OpenVPNClient.class);
+                                    Intent intent = new Intent(SplashScreen.this,NexusHomeActivity.class);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                     startActivity(intent);
                                     SplashScreen.this.finish();

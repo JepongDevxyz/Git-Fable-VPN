@@ -31,8 +31,9 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  *    server/network spinners and traffic graph) until the sing-box /
  *    WireGuard native service binding lands — real navigations to the
  *    functional screen, not dead buttons.
- *  - This activity is NOT the launcher yet: SplashScreen -> OpenVPNClient
- *    stays the entry until the native binding is CI-built and phone-tested.
+ *  - This activity IS the app Home since the 2026-10-31 fix: SplashScreen
+ *    now routes here (her phone test of the first CI APK showed the old
+ *    client first because the entry still pointed at OpenVPNClient).
  */
 public class NexusHomeActivity extends Activity {
 
