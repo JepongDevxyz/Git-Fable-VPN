@@ -671,6 +671,15 @@
                     android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
                     android:paddingVertical="11dp"/>
 
+                <TextView android:id="@+id/cc_gen_publish" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:text="Publish feed (servers.txt)" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Builds servers.txt from ALL profiles above (share-link lines only). Upload it to the repo at servers/servers.txt and every Git Fable VPN client auto-updates — no manual import."
+                    android:textColor="@color/cc_muted" android:textSize="12sp"/>
+
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="14dp" android:text="Output" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
                 <TextView android:id="@+id/cc_gen_output" android:layout_width="match_parent" android:layout_height="wrap_content"

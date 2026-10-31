@@ -1,0 +1,12 @@
+# Git Fable VPN — official server feed
+# Mixed format, two sections in one file:
+#   1) One share link per line: vless://, vmess://, trojan://, ss://, hy2://, wireguard://
+#   2) A full-fidelity store block (the GFVPN-PROFILES store serialization)
+#      carrying EVERY profile — including injector / SSH / SlowDNS / UDP
+#      Custom / OpenVPN profiles, which have no share-link form. When a
+#      server appears in both sections, the store-block version wins.
+# Lines starting with # are comments. The admin publishes this file from the
+# Git Fable Generator app ("Publish feed" -> save as servers/servers.txt).
+# Every Git Fable VPN client auto-updates its Servers list from the raw URL:
+# https://raw.githubusercontent.com/JepongDevxyz/Git-Fable-VPN/main/servers/servers.txt
+# (No servers published yet — an empty list is valid.)

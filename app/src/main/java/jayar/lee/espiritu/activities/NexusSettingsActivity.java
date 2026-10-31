@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jepongdevxyz.fablevpn.R;
+import jayar.lee.espiritu.protocols.FeedUpdater;
 import jayar.lee.espiritu.protocols.Protocol;
 import jayar.lee.espiritu.protocols.TunnelSettings;
 
@@ -26,7 +27,11 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  *    Protection — each Switch writes its TunnelSettings key immediately;
  *    TunnelSettings.buildSingBoxConfig() consumes them for real
  *    (strict_route / exclude_package / detour / hijack-dns).
- * Defaults are OFF on first run (her standing rule).
+ *  - "Auto-update servers" binds to FeedUpdater (cc_feed_auto in the
+ *    client private prefs, NOT this screen's settings file).
+ * Defaults are OFF on first run (her standing rule) — with ONE deliberate
+ * exception: "Auto-update servers" defaults ON, because she explicitly
+ * ordered the feed to update by itself with no manual import.
  */
 public class NexusSettingsActivity extends Activity {
 
@@ -149,6 +154,29 @@ public class NexusSettingsActivity extends Activity {
         toggleList.addView(item);
     }
 
+    /** Same row shape as addToggle, but bound to FeedUpdater's pref
+     *  (client private prefs, cc_feed_auto, DEFAULT ON — see class doc). */
+    private void addFeedToggle() {
+        final String label = "Auto-update servers";
+        LinearLayout item = new LinearLayout(this);
+        item.setOrientation(LinearLayout.HORIZONTAL);
+        item.setGravity(Gravity.CENTER_VERTICAL);
+        item.setPadding(dp(12), dp(10), dp(12), dp(10));
+        TextView title = new TextView(this);
+        title.setText(label); title.setTextSize(15);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        title.setLayoutParams(tlp);
+        item.addView(title);
+        Switch sw = new Switch(this);
+        sw.setChecked(FeedUpdater.isAutoEnabled(this));
+        sw.setOnCheckedChangeListener((btn, checked) -> {
+            FeedUpdater.setAutoEnabled(NexusSettingsActivity.this, checked);
+            brandedToast(label + (checked ? " ON" : " OFF"));
+        });
+        item.addView(sw);
+        toggleList.addView(item);
+    }
+
     private void buildToggles() {
         toggleList.removeAllViews();
         addToggle(TunnelSettings.KEY_KILL_SWITCH, "Kill Switch");
@@ -157,6 +185,7 @@ public class NexusSettingsActivity extends Activity {
         addToggle(TunnelSettings.KEY_DNS_LEAK, "DNS Leak Protection");
         addToggle(TunnelSettings.KEY_AUTOCONNECT, "Auto-connect on boot");
         addToggle(TunnelSettings.KEY_RECONNECT, "Auto reconnect");
+        addFeedToggle();
     }
 
     /** Bottom-center branded toast (her UI rule). */

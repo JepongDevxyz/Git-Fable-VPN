@@ -20,9 +20,13 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import com.jepongdevxyz.fablegen.R;
 import jayar.lee.espiritu.protocols.ConfigCrypto;
@@ -32,6 +36,7 @@ import jayar.lee.espiritu.protocols.PayloadGenerator;
 import jayar.lee.espiritu.protocols.ProfileStore;
 import jayar.lee.espiritu.protocols.Protocol;
 import jayar.lee.espiritu.protocols.ServerProfile;
+import jayar.lee.espiritu.protocols.ShareLinkParser;
 import jayar.lee.espiritu.protocols.WireGuardConfParser;
 
 /**
@@ -51,6 +56,13 @@ import jayar.lee.espiritu.protocols.WireGuardConfParser;
  * export, which the Git Fable VPN client imports. The header Import
  * button brings a profile back in (share links, deep link, raw store
  * text, or GFVENC1 + password) via ImportHelper so it can be edited.
+ *
+ * PUBLISH FEED (her order, 2026-11-01): "Publish feed (servers.txt)"
+ * builds the online feed from ALL stored profiles and offers it via the
+ * share sheet / a save-file picker. She uploads that servers.txt to the
+ * repo path servers/servers.txt; every client then auto-updates from
+ * the raw URL by itself (FeedUpdater on the client side) — no manual
+ * import for users, ever.
  *
  * Protocol coverage = every service of our VPS script, via
  * GeneratorProfileBuilder (exact paths/ports/defaults). L2TP / IKEv2 /
@@ -96,10 +108,14 @@ public class GeneratorActivity extends Activity {
 
     private Spinner picker, protocolSpinner, ssMethodSpinner;
     private TextView saveBtn, deleteBtn, payloadOut, outputBox;
-    private TextView btnShareText, btnShare, btnLink, btnExport;
+    private TextView btnShareText, btnShare, btnLink, btnExport, btnPublish;
     private String editingName = null;      // null = New profile
     private boolean loadingPicker = false;
     private List<ServerProfile> pickerProfiles = new ArrayList<>();
+
+    private static final int REQ_SAVE_FEED = 4711;
+    private String pendingFeedText = null;  // feed text waiting for the save picker
+    private int feedIncluded = 0, feedSkipped = 0;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,6 +132,7 @@ public class GeneratorActivity extends Activity {
         btnShare = findViewById(R.id.cc_gen_share);
         btnLink = findViewById(R.id.cc_gen_link);
         btnExport = findViewById(R.id.cc_gen_export);
+        btnPublish = findViewById(R.id.cc_gen_publish);
 
         // protocol spinner
         List<String> labels = new ArrayList<>();
@@ -186,6 +203,7 @@ public class GeneratorActivity extends Activity {
             brandedToast("Import link copied — send it to the other phone");
         });
         btnExport.setOnClickListener(v -> onExport());
+        btnPublish.setOnClickListener(v -> onPublish());
 
         refreshPicker(null);
         updateGroups();
@@ -200,10 +218,12 @@ public class GeneratorActivity extends Activity {
             btnShare.setEnabled(false);
             btnLink.setEnabled(false);
             btnExport.setEnabled(false);
+            btnPublish.setEnabled(false);
             btnShareText.setAlpha(0.35f);
             btnShare.setAlpha(0.35f);
             btnLink.setAlpha(0.35f);
             btnExport.setAlpha(0.35f);
+            btnPublish.setAlpha(0.35f);
             brandedToast("Modified app detected");
         }
     }
@@ -357,6 +377,114 @@ public class GeneratorActivity extends Activity {
             brandedToast("Exported to " + out.getAbsolutePath());
         } catch (Exception e) {
             brandedToast("Export failed: " + e.getMessage());
+        }
+    }
+
+    // ---------------- publish feed (online auto-update) ----------------
+
+    /**
+     * Builds the servers.txt feed text from ALL profiles in this app's
+     * store, as a MIXED feed (the client-side FeedUpdater reads both
+     * parts):
+     *   1. a dated header comment + one share link per profile that has
+     *      a share-link form (ShareLinkParser.toShareLink);
+     *   2. a full-fidelity ProfileStore block (ProfileStore.serialize)
+     *      containing EVERY profile — including the injector / SSH /
+     *      SlowDNS / UDP Custom / OpenVPN / system-VPN profiles that
+     *      have no share-link form. On the client, store-block entries
+     *      are applied last and win on name collisions, so NOTHING is
+     *      skipped: a profile is only counted in feedSkipped when it
+     *      fails BOTH serializers (a null entry — serialize skips those).
+     * feedIncluded therefore reports the TOTAL servers published.
+     *
+     * Purpose: the admin uploads/sends this servers.txt to the repo path
+     * servers/servers.txt; every Git Fable VPN client then auto-updates
+     * its Servers list from the raw URL — no manual import for users.
+     */
+    private String buildFeedText() {
+        feedIncluded = 0;
+        feedSkipped = 0;
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        List<ServerProfile> all = ProfilePrefs.load();
+        StringBuilder sb = new StringBuilder();
+        sb.append("# Git Fable VPN servers — updated ").append(date).append('\n');
+        sb.append("# Mixed feed: share links first, then a full-fidelity store block with EVERY profile.\n");
+        for (ServerProfile p : all) {
+            if (p == null) { feedSkipped++; continue; }
+            feedIncluded++;
+            String link = ShareLinkParser.toShareLink(p);
+            if (link != null && !link.isEmpty()) sb.append(link).append('\n');
+        }
+        sb.append(ProfileStore.serialize(all));
+        return sb.toString();
+    }
+
+    private void onPublish() {
+        String feed = buildFeedText();
+        pendingFeedText = feed;
+        outputBox.setText(feed);
+        if (feedIncluded == 0) {
+            brandedToast("No servers to publish yet");
+            return;
+        }
+        brandedToast("Feed ready: " + feedIncluded + " server" + (feedIncluded == 1 ? "" : "s")
+            + " published, " + feedSkipped + " skipped");
+        showPublishDialog();
+    }
+
+    /** Custom-chrome publish dialog (cc_ layout, no default dialog look). */
+    private void showPublishDialog() {
+        final Dialog d = new Dialog(this);
+        d.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        d.setContentView(R.layout.gen_publish_dialog);
+        if (d.getWindow() != null) {
+            d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            d.getWindow().setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+        TextView summary = d.findViewById(R.id.cc_pub_summary);
+        summary.setText("servers.txt is ready in the Output box: " + feedIncluded
+            + " server" + (feedIncluded == 1 ? "" : "s") + " published, " + feedSkipped
+            + " skipped. Upload it to the repo at servers/servers.txt — every client auto-updates.");
+        d.findViewById(R.id.cc_pub_cancel).setOnClickListener(v -> d.dismiss());
+        d.findViewById(R.id.cc_pub_share).setOnClickListener(v -> {
+            d.dismiss();
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(Intent.EXTRA_SUBJECT, "servers.txt");
+            send.putExtra(Intent.EXTRA_TEXT, pendingFeedText);
+            startActivity(Intent.createChooser(send, "Share servers.txt"));
+        });
+        d.findViewById(R.id.cc_pub_save).setOnClickListener(v -> {
+            d.dismiss();
+            Intent create = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            create.addCategory(Intent.CATEGORY_OPENABLE);
+            create.setType("text/plain");
+            create.putExtra(Intent.EXTRA_TITLE, "servers.txt");
+            try {
+                startActivityForResult(create, REQ_SAVE_FEED);
+            } catch (Exception e) {
+                brandedToast("No file picker available — use Share instead");
+            }
+        });
+        d.show();
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != REQ_SAVE_FEED) return;
+        if (resultCode != RESULT_OK || data == null || data.getData() == null
+            || pendingFeedText == null) {
+            return; // picker cancelled — the feed text stays in the Output box
+        }
+        try {
+            OutputStream out = getContentResolver().openOutputStream(data.getData(), "wt");
+            if (out == null) throw new java.io.IOException("no output stream");
+            out.write(pendingFeedText.getBytes("UTF-8"));
+            out.close();
+            brandedToast("Saved servers.txt — upload it to the repo (servers/servers.txt)");
+        } catch (Exception e) {
+            brandedToast("Save failed: " + e.getMessage());
         }
     }
 

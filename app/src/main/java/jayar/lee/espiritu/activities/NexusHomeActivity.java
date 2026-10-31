@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.jepongdevxyz.fablevpn.R;
+import jayar.lee.espiritu.protocols.FeedUpdater;
 import jayar.lee.espiritu.protocols.ServerProfile;
 import jayar.lee.espiritu.protocols.TunnelSettings;
 
@@ -23,6 +24,10 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  *  - Bottom nav Settings -> NexusSettingsActivity
  *  - Change Location + bottom nav Locations -> ServersActivity (real
  *    profile library: ProfilePrefs/ProfileStore, select/import/delete)
+ *  - Online server feed (her order, 2026-11-01): onResume quietly asks
+ *    FeedUpdater for a refresh when the 6 h throttle allows it — servers
+ *    update by themselves, no manual import. Background thread only,
+ *    silent on failure.
  *  - NO Server Generator in this app (her clarified order, 2026-10-31):
  *    the generator is an ADMIN-ONLY tool and lives in the separate
  *    "Git Fable Generator" app (module :gen, com.jepongdevxyz.fablegen);
@@ -74,6 +79,11 @@ public class NexusHomeActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
+        refreshHeader();
+        maybeAutoUpdateFeed();
+    }
+
+    private void refreshHeader() {
         SharedPreferences sp = getSharedPreferences(NexusSettingsActivity.PREFS, MODE_PRIVATE);
         String proto = sp.getString(TunnelSettings.KEY_DEFAULT_PROTOCOL, "AUTO");
         protocolChip.setText("Protocol: " + prettyProtocol(proto));
@@ -83,6 +93,24 @@ public class NexusHomeActivity extends Activity {
                 ? "Current server: none selected"
                 : "Current server: " + sel.displayName());
         }
+    }
+
+    /**
+     * Online feed auto-update: when FeedUpdater says a refresh is due
+     * (auto-update ON + last success > 6 h ago), fetch on a background
+     * thread — never blocking the UI, no dialogs — then refresh the
+     * "Current server" label if this screen is still alive.
+     * FeedUpdater.fetchAndApply is single-flight, so overlapping calls
+     * from Home / Servers are harmless.
+     */
+    private void maybeAutoUpdateFeed() {
+        if (!FeedUpdater.shouldFetchNow(this)) return;
+        new Thread(() -> {
+            boolean ok = FeedUpdater.fetchAndApply(NexusHomeActivity.this);
+            if (ok && !isFinishing() && !isDestroyed()) {
+                runOnUiThread(this::refreshHeader);
+            }
+        }).start();
     }
 
     private String prettyProtocol(String id) {

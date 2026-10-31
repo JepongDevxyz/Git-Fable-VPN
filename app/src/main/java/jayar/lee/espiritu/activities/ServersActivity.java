@@ -15,6 +15,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import com.jepongdevxyz.fablevpn.R;
+import jayar.lee.espiritu.protocols.FeedUpdater;
 import jayar.lee.espiritu.protocols.ServerProfile;
 
 /**
@@ -61,6 +62,23 @@ public class ServersActivity extends Activity {
         profiles = ProfilePrefs.load();
         buildRows(searchBox.getText().toString());
         maybeAutoRefreshSubscription();
+        maybeAutoRefreshFeed();
+    }
+
+    /** Online server feed (her order, 2026-11-01): when a feed refresh is
+     *  due (auto-update ON + last success > 6 h ago), fetch it here too so
+     *  the list shows fresh feed servers immediately. Background thread,
+     *  silent on failure; FeedUpdater.fetchAndApply is single-flight. */
+    private void maybeAutoRefreshFeed() {
+        if (!FeedUpdater.shouldFetchNow(this)) return;
+        new Thread(() -> {
+            if (FeedUpdater.fetchAndApply(ServersActivity.this)) {
+                runOnUiThread(() -> {
+                    profiles = ProfilePrefs.load();
+                    buildRows(searchBox.getText().toString());
+                });
+            }
+        }).start();
     }
 
     /** Modern auto-update: when the user turned it ON in Import, refresh from
