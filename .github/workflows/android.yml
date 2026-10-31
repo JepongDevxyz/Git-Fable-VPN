@@ -35,9 +35,19 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
 
+      - name: Build Generator (admin) debug APK
+        run: ./gradlew :gen:assembleDebug --stacktrace
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Git-Fable-VPN-debug
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload Generator (admin) debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Git-Fable-Generator-debug
+          path: gen/build/outputs/apk/debug/*.apk
           if-no-files-found: error
