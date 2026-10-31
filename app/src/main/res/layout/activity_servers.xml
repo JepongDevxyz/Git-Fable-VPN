@@ -25,6 +25,12 @@
         android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_input"
         android:paddingHorizontal="14dp" android:paddingVertical="10dp" android:singleLine="true"/>
 
+    <!-- Active protocol filter (Settings selection, her order 2026-11-01:
+         a specific protocol shows only its family; Auto shows all). -->
+    <TextView android:id="@+id/cc_srv_filter" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:layout_marginTop="8dp"
+        android:text="Showing: All protocols" android:textColor="@color/cc_muted" android:textSize="12sp"/>
+
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical" android:padding="16dp">

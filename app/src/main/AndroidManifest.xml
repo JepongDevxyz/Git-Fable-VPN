@@ -92,6 +92,10 @@
 			android:label="Servers"
 			android:exported="false"/>
 		<activity
+			android:name="jayar.lee.espiritu.activities.NexusStatisticsActivity"
+			android:label="Statistics"
+			android:exported="false"/>
+		<activity
 			android:name="jayar.lee.espiritu.activities.ImportActivity"
 			android:label="Import Profiles"
 			android:exported="true">

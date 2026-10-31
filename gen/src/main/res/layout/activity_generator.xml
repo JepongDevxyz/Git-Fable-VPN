@@ -29,7 +29,7 @@
             android:background="@drawable/cc_chip" android:paddingHorizontal="12dp" android:paddingVertical="7dp"/>
     </LinearLayout>
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="vertical" android:padding="16dp">
 
@@ -189,7 +189,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_uuid" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Xray credentials" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -239,7 +239,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_ss" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_ss" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Shadowsocks" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -249,7 +249,7 @@
                     android:layout_marginTop="6dp"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_hy" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_hy" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Hysteria2 obfuscation (optional)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -274,7 +274,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_wg" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_wg" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="WireGuard keys" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -355,7 +355,7 @@
                     android:paddingVertical="11dp"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_ovpn" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_ovpn" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="OpenVPN config (.ovpn)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -367,7 +367,7 @@
                     android:inputType="textMultiLine|textNoSuggestions"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_slowdns" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_slowdns" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="SlowDNS (dnstt, UDP 53)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -385,7 +385,7 @@
                     android:singleLine="true" android:inputType="textUri"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_psk" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_psk" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Pre-shared key (PSK)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
@@ -395,7 +395,7 @@
                     android:singleLine="true" android:inputType="textPassword"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/cc_grp_payload" android:layout_width="match_parent" android:layout_height="wrap_content"
+            <LinearLayout android:id="@+id/cc_grp_payload" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone"
                 android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="Payload" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>

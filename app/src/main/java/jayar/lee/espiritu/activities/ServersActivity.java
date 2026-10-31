@@ -2,6 +2,7 @@ package jayar.lee.espiritu.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,7 +17,9 @@ import java.util.List;
 
 import com.jepongdevxyz.fablevpn.R;
 import jayar.lee.espiritu.protocols.FeedUpdater;
+import jayar.lee.espiritu.protocols.ProtocolFamily;
 import jayar.lee.espiritu.protocols.ServerProfile;
+import jayar.lee.espiritu.protocols.TunnelSettings;
 
 /**
  * Servers / Locations screen (Nexus reference shape):
@@ -27,13 +30,20 @@ import jayar.lee.espiritu.protocols.ServerProfile;
  *    (no dialogs — her rule) with a branded toast naming the profile
  *  - Import button opens ImportActivity; the list reloads on resume so
  *    freshly imported profiles appear without restarting the screen.
+ *  - Protocol organization (her order, 2026-11-01): the Settings default
+ *    protocol filters this list by FAMILY via ProtocolFamily — a specific
+ *    selection shows only that family (e.g. OpenVPN shows UDP+TCP),
+ *    Auto/unset shows everything. Search narrows WITHIN the filtered
+ *    set; tap/long-press act on the underlying profile objects.
  * Data: ProfilePrefs / ProfileStore in HarliesApplication private prefs.
  */
 public class ServersActivity extends Activity {
 
     private LinearLayout listBox;
     private EditText searchBox;
+    private TextView filterLine;
     private List<ServerProfile> profiles;
+    private String activeSelection = "AUTO";
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +51,7 @@ public class ServersActivity extends Activity {
 
         listBox = findViewById(R.id.cc_srv_list);
         searchBox = findViewById(R.id.cc_srv_search);
+        filterLine = findViewById(R.id.cc_srv_filter);
 
         findViewById(R.id.cc_srv_back).setOnClickListener(v -> finish());
         findViewById(R.id.cc_srv_import).setOnClickListener(v ->
@@ -60,6 +71,14 @@ public class ServersActivity extends Activity {
         // ONE SYNC: always reload from the single store — Import additions
         // and deletions elsewhere show up immediately.
         profiles = ProfilePrefs.load();
+        SharedPreferences sp = getSharedPreferences(NexusSettingsActivity.PREFS, MODE_PRIVATE);
+        activeSelection = sp.getString(TunnelSettings.KEY_DEFAULT_PROTOCOL, "AUTO");
+        if (filterLine != null) {
+            boolean all = ProtocolFamily.familyForSelection(activeSelection) == null;
+            filterLine.setText(all
+                ? "Showing: All protocols"
+                : "Showing: " + ProtocolFamily.selectionLabel(activeSelection) + " only");
+        }
         buildRows(searchBox.getText().toString());
         maybeAutoRefreshSubscription();
         maybeAutoRefreshFeed();
@@ -112,8 +131,10 @@ public class ServersActivity extends Activity {
         if (profiles == null) profiles = ProfilePrefs.load();
         String f = filter == null ? "" : filter.trim().toLowerCase();
         String selected = ProfilePrefs.selectedName();
+        // Protocol-family filter first; search narrows within that set.
+        List<ServerProfile> visible = ProtocolFamily.filter(profiles, activeSelection);
         int shown = 0;
-        for (final ServerProfile p : profiles) {
+        for (final ServerProfile p : visible) {
             String hay = (p.displayName() + " " + p.host + " " + p.port + " "
                 + (p.protocol == null ? "" : p.protocol.label)).toLowerCase();
             if (!f.isEmpty() && !hay.contains(f)) continue;
@@ -168,9 +189,15 @@ public class ServersActivity extends Activity {
         }
         if (shown == 0) {
             TextView empty = new TextView(this);
-            empty.setText(profiles.isEmpty()
-                ? "No servers yet. Tap Import to add share links, a WireGuard .conf, an .ovpn config, or use Jepong VPS Quick-Add."
-                : "No servers match your search.");
+            String label = ProtocolFamily.selectionLabel(activeSelection);
+            boolean filtered = ProtocolFamily.familyForSelection(activeSelection) != null;
+            if (profiles.isEmpty()) {
+                empty.setText("No servers yet. Tap Import to add share links, a WireGuard .conf, an .ovpn config, or use Jepong VPS Quick-Add.");
+            } else if (visible.isEmpty() && filtered) {
+                empty.setText("No " + label + " servers yet. Add one via Import, or set the protocol to Auto in Settings to see all servers.");
+            } else {
+                empty.setText("No servers match your search.");
+            }
             empty.setTextSize(13);
             empty.setPadding(dp(12), dp(12), dp(12), dp(12));
             listBox.addView(empty);

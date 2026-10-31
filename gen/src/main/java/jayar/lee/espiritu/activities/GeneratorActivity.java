@@ -35,6 +35,7 @@ import jayar.lee.espiritu.protocols.GeneratorProfileBuilder;
 import jayar.lee.espiritu.protocols.PayloadGenerator;
 import jayar.lee.espiritu.protocols.ProfileStore;
 import jayar.lee.espiritu.protocols.Protocol;
+import jayar.lee.espiritu.protocols.ProtocolFamily;
 import jayar.lee.espiritu.protocols.ServerProfile;
 import jayar.lee.espiritu.protocols.ShareLinkParser;
 import jayar.lee.espiritu.protocols.WireGuardConfParser;
@@ -77,12 +78,16 @@ public class GeneratorActivity extends Activity {
         }
     }
 
+    // SAME family order as the client Settings protocol list (sync order,
+    // 2026-11-01): WireGuard, OpenVPN, VLESS, VMess, Trojan, Hysteria2,
+    // Shadowsocks, SSH, SlowDNS, UDP Custom, IKEv2, L2TP/IPSec. PPTP is
+    // last: it is in the enum + this Generator (admin can still create
+    // the profile) but intentionally has NO client Settings row (legacy;
+    // Android 12+ removed the PPTP client).
     private static final ProtoChoice[] PROTOCOLS = {
-        new ProtoChoice(Protocol.SSH_WS, "SSH over WebSocket (8080)", false),
-        new ProtoChoice(Protocol.SSH_DIRECT, "SSH Direct (22 / Dropbear 109, 143)", false),
-        new ProtoChoice(Protocol.SSH_DIRECT, "SSH via SSL (Stunnel, SSL port)", true),
-        new ProtoChoice(Protocol.SLOWDNS_SSH, "SlowDNS + SSH (UDP 53)", false),
-        new ProtoChoice(Protocol.UDP_CUSTOM, "UDP Custom (36712)", false),
+        new ProtoChoice(Protocol.WIREGUARD, "WireGuard (51820)", false),
+        new ProtoChoice(Protocol.OPENVPN_UDP, "OpenVPN UDP (1194)", false),
+        new ProtoChoice(Protocol.OPENVPN_TCP, "OpenVPN TCP (1194)", false),
         new ProtoChoice(Protocol.VLESS_WS, "VLESS WS (443, /vless)", false),
         new ProtoChoice(Protocol.VLESS_GRPC, "VLESS gRPC (443, serviceName grpc)", false),
         new ProtoChoice(Protocol.VLESS_XHTTP, "VLESS XHTTP (443, /xhttp)", false),
@@ -91,13 +96,15 @@ public class GeneratorActivity extends Activity {
         new ProtoChoice(Protocol.VMESS_TCP, "VMess TCP (443)", false),
         new ProtoChoice(Protocol.TROJAN_WS, "Trojan WS (443, /trojan)", false),
         new ProtoChoice(Protocol.TROJAN_TCP, "Trojan TCP (443)", false),
-        new ProtoChoice(Protocol.SHADOWSOCKS, "Shadowsocks (8388)", false),
         new ProtoChoice(Protocol.HYSTERIA2, "Hysteria2 (4443)", false),
-        new ProtoChoice(Protocol.WIREGUARD, "WireGuard (51820)", false),
-        new ProtoChoice(Protocol.OPENVPN_UDP, "OpenVPN UDP (1194)", false),
-        new ProtoChoice(Protocol.OPENVPN_TCP, "OpenVPN TCP (1194)", false),
-        new ProtoChoice(Protocol.L2TP_IPSEC, "L2TP/IPSec (system VPN)", false),
+        new ProtoChoice(Protocol.SHADOWSOCKS, "Shadowsocks (8388)", false),
+        new ProtoChoice(Protocol.SSH_WS, "SSH over WebSocket (8080)", false),
+        new ProtoChoice(Protocol.SSH_DIRECT, "SSH Direct (22 / Dropbear 109, 143)", false),
+        new ProtoChoice(Protocol.SSH_DIRECT, "SSH via SSL (Stunnel, SSL port)", true),
+        new ProtoChoice(Protocol.SLOWDNS_SSH, "SlowDNS + SSH (UDP 53)", false),
+        new ProtoChoice(Protocol.UDP_CUSTOM, "UDP Custom (36712)", false),
         new ProtoChoice(Protocol.IKEV2, "IKEv2 (system VPN)", false),
+        new ProtoChoice(Protocol.L2TP_IPSEC, "L2TP/IPSec (system VPN)", false),
         new ProtoChoice(Protocol.PPTP_LEGACY, "PPTP (legacy, system VPN)", false),
     };
 
@@ -141,7 +148,13 @@ public class GeneratorActivity extends Activity {
         pa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         protocolSpinner.setAdapter(pa);
         protocolSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) { updateGroups(); }
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                updateGroups();
+                // Fresh form (not editing a stored profile): prefill the
+                // VPS setup defaults so only server-specific values are
+                // typed. Editing a profile never gets its fields clobbered.
+                if (editingName == null) applyProtocolDefaults();
+            }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
@@ -240,9 +253,22 @@ public class GeneratorActivity extends Activity {
     private void refreshPicker(String selectName) {
         loadingPicker = true;
         pickerProfiles = ProfilePrefs.load();
+        // Group the picker by protocol FAMILY in the client Settings
+        // order (same ProtocolFamily grouping as the client's Servers
+        // filter); alphabetical inside a family. pickerProfiles is
+        // sorted in place so indices stay aligned with the labels.
+        Collections.sort(pickerProfiles, (a, b) -> {
+            int fa = ProtocolFamily.familyOrderIndex(ProtocolFamily.familyOf(a.protocol));
+            int fb = ProtocolFamily.familyOrderIndex(ProtocolFamily.familyOf(b.protocol));
+            if (fa != fb) return fa - fb;
+            return a.displayName().compareToIgnoreCase(b.displayName());
+        });
         List<String> names = new ArrayList<>();
         names.add("New profile");
-        for (ServerProfile p : pickerProfiles) names.add(p.displayName());
+        for (ServerProfile p : pickerProfiles) {
+            names.add((p.protocol == null ? "Other" : ProtocolFamily.selectionLabel(p.protocol.name()))
+                + " — " + p.displayName());
+        }
         ArrayAdapter<String> aa = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, names);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         picker.setAdapter(aa);
@@ -701,6 +727,62 @@ public class GeneratorActivity extends Activity {
         show(R.id.cc_grp_psk, p == Protocol.UDP_CUSTOM || p == Protocol.L2TP_IPSEC);
         show(R.id.cc_grp_payload, p == Protocol.SSH_DIRECT || p == Protocol.SSH_WS
             || p == Protocol.SLOWDNS_SSH || sslStyle);
+    }
+
+    /**
+     * Prefills the VPS setup defaults for the freshly chosen protocol
+     * (same values GeneratorProfileBuilder applies at build time, now
+     * visible in the form): ports, WS/XHTTP paths, gRPC serviceName,
+     * WireGuard AllowedIPs. Port is only replaced when the field is
+     * empty or still holds ANOTHER protocol's known default, so a
+     * custom port she typed is never overwritten.
+     */
+    private void applyProtocolDefaults() {
+        ProtoChoice c = currentChoice();
+        int port = 0;
+        String path = "", service = "";
+        switch (c.protocol) {
+            case WIREGUARD:
+                port = 51820;
+                if (text(R.id.cc_gen_wg_allowed).isEmpty()) set(R.id.cc_gen_wg_allowed, "0.0.0.0/0");
+                break;
+            case OPENVPN_UDP: case OPENVPN_TCP: port = 1194; break;
+            case VLESS_WS: port = 443; path = "/vless"; break;
+            case VLESS_GRPC: port = 443; service = "grpc"; break;
+            case VLESS_XHTTP: port = 443; path = "/xhttp"; break;
+            case VLESS_TCP: port = 443; break;
+            case VMESS_WS: port = 443; path = "/vmess"; break;
+            case VMESS_TCP: port = 443; break;
+            case TROJAN_WS: port = 443; path = "/trojan"; break;
+            case TROJAN_TCP: port = 443; break;
+            case HYSTERIA2: port = 4443; break;
+            case SHADOWSOCKS: port = 8388; break;
+            case SSH_WS: port = 8080; break;
+            case SSH_DIRECT:
+                if (c.sslStyle) {
+                    if (text(R.id.cc_gen_ssl_port).isEmpty()) set(R.id.cc_gen_ssl_port, "443");
+                    port = 22;
+                } else port = 22;
+                break;
+            case SLOWDNS_SSH: port = 22; break;   // DNS side stays 53 (builder), NS/pubkey are server-specific
+            case UDP_CUSTOM: port = 36712; break;
+            case IKEV2: port = 500; break;
+            case L2TP_IPSEC: port = 1701; break;
+            case PPTP_LEGACY: port = 1723; break;
+            default: break;
+        }
+        if (port > 0) {
+            String cur = text(R.id.cc_gen_port);
+            if (cur.isEmpty() || isKnownDefaultPort(cur)) set(R.id.cc_gen_port, Integer.toString(port));
+        }
+        if (!path.isEmpty() && text(R.id.cc_gen_path).isEmpty()) set(R.id.cc_gen_path, path);
+        if (!service.isEmpty() && text(R.id.cc_gen_service).isEmpty()) set(R.id.cc_gen_service, service);
+    }
+
+    private static boolean isKnownDefaultPort(String s) {
+        int[] known = {443, 1194, 8388, 4443, 51820, 8080, 22, 36712, 1701, 500, 1723, 53};
+        for (int k : known) if (Integer.toString(k).equals(s.trim())) return true;
+        return false;
     }
 
     // ---------------- small helpers ----------------
