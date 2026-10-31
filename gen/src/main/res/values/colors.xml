@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Only the colors AppTheme references (values mirrored from the client). -->
+    <color name="colorPrimary">#87CEEB</color>
+    <color name="colorPrimaryDark">#87CEEB</color>
+    <color name="colorAccent">#87CEEB</color>
+</resources>

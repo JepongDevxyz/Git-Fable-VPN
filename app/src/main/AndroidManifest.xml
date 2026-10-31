@@ -104,10 +104,6 @@
 			</intent-filter>
 		</activity>
 		<activity
-			android:name="jayar.lee.espiritu.activities.GeneratorActivity"
-			android:label="Server Generator"
-			android:exported="false"/>
-		<activity
 			android:name="jayar.lee.espiritu.logger.HarlieLogs"
 			android:label="HLogs"
 			android:parentActivityName="jayar.lee.espiritu.activities.OpenVPNClient"/>

@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Git Fable Generator — STANDALONE admin app (Trinet Reborn Gen concept,
+     re-implemented): Server form + Connection Mode + per-protocol field
+     groups + Payload form/generator + Actions (Save / Share Text / Share /
+     Import Link / Export). NOT part of the user client (her order).
+     Save writes into THIS app's own ProfilePrefs/ProfileStore
+     (cc_profiles_v1) — edit-in-place via the profile picker. Profiles reach
+     users only through share/export/deep-link, which the Git Fable VPN
+     client imports. The header Import button brings a profile back in
+     (links / store text / GFVENC1) for editing.
+     Theme tokens only; no emoji. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@color/cc_bg">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="8dp">
+        <TextView android:id="@+id/cc_gen_back" android:layout_width="48dp" android:layout_height="match_parent"
+            android:text="←" android:textColor="@color/cc_ink" android:textSize="20sp" android:gravity="center"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Git Fable Generator" android:textColor="@color/cc_ink" android:textSize="17sp"
+            android:textStyle="bold" android:gravity="center"/>
+        <TextView android:id="@+id/cc_gen_import" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="Import" android:textColor="@color/cc_ink" android:textSize="13sp"
+            android:background="@drawable/cc_chip" android:paddingHorizontal="12dp" android:paddingVertical="7dp"/>
+        <TextView android:id="@+id/cc_gen_delete" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Delete" android:textColor="@color/cc_ink" android:textSize="13sp"
+            android:background="@drawable/cc_chip" android:paddingHorizontal="12dp" android:paddingVertical="7dp"/>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:padding="16dp">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Edit profile" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" android:background="@drawable/cc_card"
+                android:orientation="vertical" android:padding="14dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Pick an existing profile to edit it in place, or New profile to create one. Profiles are stored in this generator; share or export them for the Git Fable VPN app."
+                    android:textColor="@color/cc_muted" android:textSize="12sp"/>
+                <Spinner android:id="@+id/cc_gen_picker" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:layout_marginBottom="8dp"
+                android:text="Server" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Server name" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_name" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="Singapore 01" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="text"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Country / flag code" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_flag" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="sg" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Server IP / host" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_host" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="vpn.example.com" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textUri"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Server port" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_port" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="443" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SSL port" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_ssl_port" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="443" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Proxy host" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_proxy_host" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="proxy host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Proxy port" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_proxy_port" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="8080" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Server info / notes" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_info" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="Server info" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="text"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Username" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_user" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Username" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Password" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textPassword"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:layout_marginBottom="8dp"
+                android:text="Connection Mode" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Protocol (all Jepong VPS services)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <Spinner android:id="@+id/cc_gen_protocol" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Use SSL" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_ssl" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="SSL + Payload" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_ssl_payload" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="SSL + Payload + Reverse Proxy" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_ssl_rp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Use Custom Proxy" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_proxy" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Enable SlowDNS" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_slowdns" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Enable UDP" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_tgl_udp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Xray credentials" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="UUID" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="UUID" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Alter ID (VMess)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_alterid" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="0" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Path (WS / XHTTP)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_path" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="/vless" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="gRPC service name" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_service" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="grpc" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SNI" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_sni" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="SNI host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_ss" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Shadowsocks" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Method" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <Spinner android:id="@+id/cc_gen_ss_method" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_hy" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Hysteria2 obfuscation (optional)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Obfs type" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_hy_obfs" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="salamander" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Obfs password" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_hy_obfs_pass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Obfs password" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textPassword"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_wg" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="WireGuard keys" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Private key (this device)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_wg_priv" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="PrivateKey" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Address" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_addr" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="10.66.66.2/24" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Server public key" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_pub" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="PublicKey" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Preshared key" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_pre" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="PresharedKey" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Allowed IPs" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_allowed" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="0.0.0.0/0" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="DNS" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_dns" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="1.1.1.1" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="MTU" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_wg_mtu" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="1380" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Quick-fill: paste a WireGuard .conf" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_wg_conf" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:minLines="3" android:gravity="top"
+                    android:hint="[Interface] ..." android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:textSize="12sp" android:background="@drawable/cc_input"
+                    android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:inputType="textMultiLine|textNoSuggestions"/>
+                <TextView android:id="@+id/cc_gen_wg_fill" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:text="Fill keys from .conf" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_ovpn" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="OpenVPN config (.ovpn)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_ovpn" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:minLines="4" android:gravity="top"
+                    android:hint="Paste the full .ovpn file text (remote line fills host/port)" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:textSize="12sp" android:background="@drawable/cc_input"
+                    android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:inputType="textMultiLine|textNoSuggestions"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_slowdns" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="SlowDNS (dnstt, UDP 53)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="DNS public key (server.pub)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_pubkey" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="dnstt server public key" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="DNS server name (NS domain)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_ns" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="t.vpn.example.com" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textUri"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_psk" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Pre-shared key (PSK)" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_psk" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:hint="UDP Custom PSK / L2TP PSK" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textPassword"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/cc_grp_payload" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Payload" android:textColor="@color/cc_ink" android:textSize="14sp" android:textStyle="bold"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Network code" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_net_code" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="ph" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Payload name" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_payload_name" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="GTM NOLOAD" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="text"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="SNI hostname" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_pl_sni" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="SNI host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="DNS" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_pl_dns" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="8.8.8.8" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Custom proxy IP" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_pl_proxy_ip" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Custom proxy IP" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Custom port" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_pl_proxy_port" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="80" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="number"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Payload info" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_pl_info" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="Put SSH or SSL" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="text"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp" android:text="Generator method" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <RadioGroup android:id="@+id/cc_gen_method" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:orientation="horizontal">
+                    <RadioButton android:id="@+id/cc_gen_m_normal" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Normal" android:textColor="@color/cc_ink" android:textSize="13sp" android:checked="true"/>
+                    <RadioButton android:id="@+id/cc_gen_m_split" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:text="Split" android:textColor="@color/cc_ink" android:textSize="13sp"/>
+                    <RadioButton android:id="@+id/cc_gen_m_direct" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:text="Direct" android:textColor="@color/cc_ink" android:textSize="13sp"/>
+                    <RadioButton android:id="@+id/cc_gen_m_rotate" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp" android:text="Rotate" android:textColor="@color/cc_ink" android:textSize="13sp"/>
+                </RadioGroup>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Request method" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_req_method" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:text="GET" android:hint="GET" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Online host" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_online_host" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Online host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Front query" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_front_q" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="http://" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Back query" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_back_q" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Back query" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Reverse proxy" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_rev_proxy" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Reverse proxy host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Forward host" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_fwd_host" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Forward host" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textUri"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="User agent" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_ua" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Empty = [ua]" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Referer" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_referer" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="Referer" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Keep alive" android:textColor="@color/cc_ink" android:textSize="14sp"/>
+                    <Switch android:id="@+id/cc_gen_keepalive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true"/>
+                </LinearLayout>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Rotate list (Rotate method, comma-separated)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_rotate_list" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="host1,host2" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Extra headers (one per line)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_extra_header" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:minLines="2" android:gravity="top"
+                    android:hint="X-Extra: value" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:textSize="12sp" android:background="@drawable/cc_input"
+                    android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:inputType="textMultiLine|textNoSuggestions"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Custom payload / raw override" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_raw" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:minLines="2" android:gravity="top"
+                    android:hint="If filled, this exact payload is used" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:textSize="12sp" android:background="@drawable/cc_input"
+                    android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:inputType="textMultiLine|textNoSuggestions"/>
+
+                <TextView android:id="@+id/cc_gen_build_payload" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Build Payload" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Generated payload" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/cc_gen_payload_out" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:textColor="@color/cc_ink" android:textSize="12sp"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:textIsSelectable="true"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="22dp" android:layout_marginBottom="8dp"
+                android:text="Save and Share" android:textColor="@color/cc_ink" android:textSize="15sp" android:textStyle="bold"/>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/cc_card" android:orientation="vertical" android:padding="18dp">
+
+                <TextView android:id="@+id/cc_gen_save" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="Save profile" android:gravity="center"
+                    android:textColor="@color/cc_on_accent" android:textSize="15sp" android:textStyle="bold"
+                    android:background="@drawable/cc_btn_primary" android:paddingVertical="13dp"/>
+
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Sharing (to other people / other phones) — inside this app everything already syncs through the one server list, no export needed."
+                    android:textColor="@color/cc_muted" android:textSize="12sp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:text="Release notes" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <EditText android:id="@+id/cc_gen_notes" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:hint="Release notes for this config" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:singleLine="true" android:inputType="text"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="File name (export)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_filename" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:text="gitfablevpn-config.gfv.json" android:hint="file.gfv.json" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textNoSuggestions"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="Config password (optional)" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                        <EditText android:id="@+id/cc_gen_cfgpass" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:hint="AES-GCM protected" android:textColor="@color/cc_ink" android:textColorHint="@color/cc_muted"
+                            android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                            android:singleLine="true" android:inputType="textPassword"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView android:id="@+id/cc_gen_share_text" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Generate Share Text" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:orientation="horizontal">
+                    <TextView android:id="@+id/cc_gen_share" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="Share" android:gravity="center"
+                        android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                        android:paddingVertical="11dp"/>
+                    <TextView android:id="@+id/cc_gen_link" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:layout_marginStart="10dp" android:text="Create Import Link" android:gravity="center"
+                        android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                        android:paddingVertical="11dp"/>
+                </LinearLayout>
+
+                <TextView android:id="@+id/cc_gen_export" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp" android:text="Export .gfv.json file" android:gravity="center"
+                    android:textColor="@color/cc_ink" android:textSize="14sp" android:background="@drawable/cc_chip"
+                    android:paddingVertical="11dp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp" android:text="Output" android:textColor="@color/cc_ink" android:textSize="13sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/cc_gen_output" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp" android:textColor="@color/cc_ink" android:textSize="11sp"
+                    android:background="@drawable/cc_input" android:paddingHorizontal="14dp" android:paddingVertical="11dp"
+                    android:textIsSelectable="true"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

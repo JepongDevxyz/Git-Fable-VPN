@@ -18,3 +18,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Git Fable VPN"
 include ':app'
+// Standalone ADMIN tool (separate APK, com.jepongdevxyz.fablegen):
+// the Server Generator lives here, NOT inside the user client (her order).
+include ':gen'

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Git Fable Nexus theme tokens (shared with the VPN client) — DARK (Nexus reference look). -->
+<resources>
+    <color name="cc_bg">#0A1120</color>
+    <color name="cc_card">#131E33</color>
+    <color name="cc_card_alt">#0E1728</color>
+    <color name="cc_line">#24365A</color>
+    <color name="cc_ink">#EAF1FF</color>
+    <color name="cc_muted">#8FA3C4</color>
+    <color name="cc_accent">#4F8CFF</color>
+    <color name="cc_accent2">#7C5CFF</color>
+    <color name="cc_error">#FF6B6B</color>
+    <color name="cc_connected">#22E07A</color>
+    <color name="cc_connected_glow">#3DFF7A</color>
+    <color name="cc_disconnected">#5F7194</color>
+    <color name="cc_graph_up">#39A0FF</color>
+    <color name="cc_graph_down">#3DFF7A</color>
+    <color name="cc_on_accent">#FFFFFF</color>
+</resources>

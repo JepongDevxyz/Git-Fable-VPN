@@ -44,8 +44,6 @@ public class ServersActivity extends Activity {
         findViewById(R.id.cc_srv_back).setOnClickListener(v -> finish());
         findViewById(R.id.cc_srv_import).setOnClickListener(v ->
             startActivity(new Intent(this, ImportActivity.class)));
-        findViewById(R.id.cc_srv_generator).setOnClickListener(v ->
-            startActivity(new Intent(this, GeneratorActivity.class)));
 
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
@@ -58,8 +56,8 @@ public class ServersActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
-        // ONE SYNC: always reload from the single store — Generator edits,
-        // Import additions and deletions elsewhere show up immediately.
+        // ONE SYNC: always reload from the single store — Import additions
+        // and deletions elsewhere show up immediately.
         profiles = ProfilePrefs.load();
         buildRows(searchBox.getText().toString());
         maybeAutoRefreshSubscription();

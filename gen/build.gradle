@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Standalone ADMIN tool: Git Fable Generator (the Trinet Reborn Gen role).
+// Builds and edits server profiles, then shares them (share text, GFVENC1
+// encrypted export, gitfablevpn:// import link, .gfv.json file) for users
+// to import into the Git Fable VPN client (:app). Deliberately NOT part of
+// the user client — her order: no generator inside the users' app.
+android {
+    compileSdk 33
+    buildToolsVersion "33.0.0"
+
+    defaultConfig {
+        applicationId "com.jepongdevxyz.fablegen"
+        minSdk 21
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    // AppTheme's parent (Theme.AppCompat) only; every screen is built from
+    // framework widgets, mirroring the client's GeneratorActivity.
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+}

@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.jepongdevxyz.fablevpn.R;
@@ -25,8 +23,10 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  *  - Bottom nav Settings -> NexusSettingsActivity
  *  - Change Location + bottom nav Locations -> ServersActivity (real
  *    profile library: ProfilePrefs/ProfileStore, select/import/delete)
- *  - "Server Generator" button under the protocol chip -> GeneratorActivity
- *    (in-app generator editing the SAME store — one sync)
+ *  - NO Server Generator in this app (her clarified order, 2026-10-31):
+ *    the generator is an ADMIN-ONLY tool and lives in the separate
+ *    "Git Fable Generator" app (module :gen, com.jepongdevxyz.fablegen);
+ *    this client is user-only — users receive profiles via Import.
  *  - Connect ring + bottom nav Statistics still delegate to the existing
  *    working OpenVPNClient screen (which owns the live OpenVPN tunnel,
  *    server/network spinners and traffic graph) until the sing-box /
@@ -61,19 +61,6 @@ public class NexusHomeActivity extends Activity {
         protocolChip.setOnClickListener(toSettings);
         findViewById(R.id.cc_nav_settings).setOnClickListener(toSettings);
 
-        findViewById(R.id.cc_open_generator).setOnClickListener(v ->
-            startActivity(new Intent(this, GeneratorActivity.class)));
-
-        // Anti-mod guard: RELEASE builds signed with a different cert lose
-        // the Generator entry (the server exfiltration path). The app itself
-        // is never blocked; debug builds are monitor-only (SignatureCheck).
-        if (SignatureCheck.isModifiedRelease(this)) {
-            View gen = findViewById(R.id.cc_open_generator);
-            gen.setEnabled(false);
-            gen.setAlpha(0.35f);
-            brandedToast("Modified app detected");
-        }
-
         View.OnClickListener toClient = v ->
             startActivity(new Intent(this, OpenVPNClient.class));
         findViewById(R.id.cc_connect_ring).setOnClickListener(toClient);
@@ -102,11 +89,5 @@ public class NexusHomeActivity extends Activity {
         if ("AUTO".equals(id)) return "Auto";
         String s = id.replace('_', ' ');
         return s.charAt(0) + s.substring(1).toLowerCase();
-    }
-
-    private void brandedToast(String msg) {
-        Toast t = Toast.makeText(this, msg + "\nPowered by Jepong Devxyz", Toast.LENGTH_SHORT);
-        t.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 84);
-        t.show();
     }
 }

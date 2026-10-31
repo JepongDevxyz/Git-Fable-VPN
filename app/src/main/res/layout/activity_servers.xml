@@ -14,9 +14,6 @@
         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
             android:text="Servers" android:textColor="@color/cc_ink" android:textSize="17sp"
             android:textStyle="bold" android:gravity="center"/>
-        <TextView android:id="@+id/cc_srv_generator" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="Generator" android:textColor="@color/cc_ink" android:textSize="14sp"
-            android:background="@drawable/cc_chip" android:paddingHorizontal="14dp" android:paddingVertical="8dp"/>
         <TextView android:id="@+id/cc_srv_import" android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Import" android:textColor="@color/cc_ink" android:textSize="14sp"
