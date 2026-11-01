@@ -1,6 +1,5 @@
 package jayar.lee.espiritu.activities;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,13 +12,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.jepongdevxyz.fablevpn.R;
 import jayar.lee.espiritu.protocols.FeedUpdater;
 import jayar.lee.espiritu.protocols.Protocol;
 import jayar.lee.espiritu.protocols.TunnelSettings;
+import jayar.lee.espiritu.theme.ThemeSettings;
 
 /**
  * Nexus-style Settings screen (her reference, right screen):
+ *  - Appearance (FIRST section, her order 2026-11-01): System / Dark Mode /
+ *    Light Mode radio rows; the choice persists in ThemeSettings and is
+ *    applied app-wide at once via AppCompatDelegate (DayNight sync).
  *  - VPN Protocols: search + radio list; selection persists as the default
  *    protocol (TunnelSettings.KEY_DEFAULT_PROTOCOL) and is read by the
  *    Home protocol chip / new-profile flow. REAL selection, not decoration.
@@ -33,14 +38,29 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  * exception: "Auto-update servers" defaults ON, because she explicitly
  * ordered the feed to update by itself with no manual import.
  */
-public class NexusSettingsActivity extends Activity {
+public class NexusSettingsActivity extends AppCompatActivity {
 
     public static final String PREFS = "gitfablevpn_settings";
 
     private SharedPreferences prefs;
+    private LinearLayout themeList;
     private LinearLayout protocolList;
     private LinearLayout toggleList;
     private String selectedProtocol;
+    private String selectedTheme;
+
+    private static class ThemeRow {
+        final String id, title, desc;
+        ThemeRow(String id, String title, String desc) { this.id = id; this.title = title; this.desc = desc; }
+    }
+
+    // Appearance choices (her order, 2026-11-01): System / Dark / Light,
+    // persisted + applied app-wide by ThemeSettings.
+    private static final ThemeRow[] THEME_ROWS = {
+        new ThemeRow(ThemeSettings.MODE_SYSTEM, "System", "Follow device setting"),
+        new ThemeRow(ThemeSettings.MODE_DARK, "Dark Mode", "Always use the dark theme"),
+        new ThemeRow(ThemeSettings.MODE_LIGHT, "Light Mode", "Always use the light theme"),
+    };
 
     private static class ProtoRow {
         final String id, title, desc;
@@ -69,7 +89,10 @@ public class NexusSettingsActivity extends Activity {
         setContentView(R.layout.activity_nexus_settings);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         selectedProtocol = prefs.getString(TunnelSettings.KEY_DEFAULT_PROTOCOL, "AUTO");
+        selectedTheme = ThemeSettings.getMode(this);
 
+        themeList = findViewById(R.id.cc_theme_list);
+        buildThemeRows();
         protocolList = findViewById(R.id.cc_protocol_list);
         toggleList = findViewById(R.id.cc_toggle_list);
         buildProtocolRows("");
@@ -85,6 +108,62 @@ public class NexusSettingsActivity extends Activity {
     }
 
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + 0.5f); }
+
+    /** Appearance radio rows — same row shape as the protocol list.
+     *  Tapping a row persists the mode AND applies it immediately via
+     *  ThemeSettings (AppCompatDelegate recreates the UI in the new
+     *  mode, app-wide). */
+    private void buildThemeRows() {
+        themeList.removeAllViews();
+        selectedTheme = ThemeSettings.getMode(this);
+        for (final ThemeRow row : THEME_ROWS) {
+            boolean selected = row.id.equals(selectedTheme);
+            LinearLayout item = new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setGravity(Gravity.CENTER_VERTICAL);
+            item.setPadding(dp(12), dp(10), dp(12), dp(10));
+            item.setBackgroundResource(selected ? R.drawable.cc_card_selected : R.drawable.cc_card_plain);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = dp(6);
+            item.setLayoutParams(lp);
+
+            TextView radio = new TextView(this);
+            radio.setText(selected ? "●" : "○");
+            radio.setTextSize(16);
+            radio.setTextColor(getResources().getColor(
+                selected ? R.color.cc_accent : R.color.cc_muted));
+            item.addView(radio);
+
+            LinearLayout texts = new LinearLayout(this);
+            texts.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            tlp.leftMargin = dp(10);
+            texts.setLayoutParams(tlp);
+            TextView title = new TextView(this);
+            title.setText(row.title); title.setTextSize(15);
+            title.setTextColor(getResources().getColor(R.color.cc_ink));
+            TextView desc = new TextView(this);
+            desc.setText(row.desc); desc.setTextSize(12);
+            desc.setTextColor(getResources().getColor(R.color.cc_muted));
+            texts.addView(title); texts.addView(desc);
+            item.addView(texts);
+
+            if (selected) {
+                TextView check = new TextView(this);
+                check.setText("✓"); check.setTextSize(16);
+                check.setTextColor(getResources().getColor(R.color.cc_accent));
+                item.addView(check);
+            }
+            item.setOnClickListener(v -> {
+                ThemeSettings.setMode(NexusSettingsActivity.this, row.id);
+                ThemeSettings.applySaved(NexusSettingsActivity.this);
+                buildThemeRows();
+                brandedToast("Theme: " + row.title);
+            });
+            themeList.addView(item);
+        }
+    }
 
     private void buildProtocolRows(String filter) {
         protocolList.removeAllViews();

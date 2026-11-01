@@ -1,6 +1,5 @@
 package jayar.lee.espiritu.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.List;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.jepongdevxyz.fablevpn.R;
 import jayar.lee.espiritu.protocols.FeedUpdater;
@@ -37,7 +38,7 @@ import jayar.lee.espiritu.protocols.TunnelSettings;
  *    set; tap/long-press act on the underlying profile objects.
  * Data: ProfilePrefs / ProfileStore in HarliesApplication private prefs.
  */
-public class ServersActivity extends Activity {
+public class ServersActivity extends AppCompatActivity {
 
     private LinearLayout listBox;
     private EditText searchBox;

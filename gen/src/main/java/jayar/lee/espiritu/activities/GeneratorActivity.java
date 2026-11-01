@@ -1,6 +1,5 @@
 package jayar.lee.espiritu.activities;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -12,11 +11,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +41,7 @@ import jayar.lee.espiritu.protocols.ProtocolFamily;
 import jayar.lee.espiritu.protocols.ServerProfile;
 import jayar.lee.espiritu.protocols.ShareLinkParser;
 import jayar.lee.espiritu.protocols.WireGuardConfParser;
+import jayar.lee.espiritu.theme.ThemeSettings;
 
 /**
  * Git Fable Generator — the STANDALONE admin app (Trinet Reborn Gen
@@ -69,7 +72,7 @@ import jayar.lee.espiritu.protocols.WireGuardConfParser;
  * GeneratorProfileBuilder (exact paths/ports/defaults). L2TP / IKEv2 /
  * PPTP save as honest system-VPN profiles (no in-app tunnel exists).
  */
-public class GeneratorActivity extends Activity {
+public class GeneratorActivity extends AppCompatActivity {
 
     private static class ProtoChoice {
         final Protocol protocol; final String label; final boolean sslStyle;
@@ -114,6 +117,7 @@ public class GeneratorActivity extends Activity {
     };
 
     private Spinner picker, protocolSpinner, ssMethodSpinner;
+    private LinearLayout themeList;
     private TextView saveBtn, deleteBtn, payloadOut, outputBox;
     private TextView btnShareText, btnShare, btnLink, btnExport, btnPublish;
     private String editingName = null;      // null = New profile
@@ -127,6 +131,9 @@ public class GeneratorActivity extends Activity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_generator);
+
+        themeList = findViewById(R.id.cc_gen_theme_list);
+        buildThemeRows();
 
         picker = findViewById(R.id.cc_gen_picker);
         protocolSpinner = findViewById(R.id.cc_gen_protocol);
@@ -178,7 +185,7 @@ public class GeneratorActivity extends Activity {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        Switch slowToggle = findViewById(R.id.cc_gen_tgl_slowdns);
+        SwitchCompat slowToggle = findViewById(R.id.cc_gen_tgl_slowdns);
         slowToggle.setOnCheckedChangeListener((b, checked) -> updateGroups());
 
         findViewById(R.id.cc_gen_import).setOnClickListener(v -> showImportDialog());
@@ -530,7 +537,7 @@ public class GeneratorActivity extends Activity {
         in.reverseProxy = text(R.id.cc_gen_rev_proxy);
         in.userAgent = text(R.id.cc_gen_ua);
         in.forwardHost = text(R.id.cc_gen_fwd_host);
-        in.keepAlive = ((Switch) findViewById(R.id.cc_gen_keepalive)).isChecked();
+        in.keepAlive = ((SwitchCompat) findViewById(R.id.cc_gen_keepalive)).isChecked();
         in.referer = text(R.id.cc_gen_referer);
         in.extraHeader = text(R.id.cc_gen_extra_header);
         in.rawPayload = text(R.id.cc_gen_raw);
@@ -806,14 +813,77 @@ public class GeneratorActivity extends Activity {
         try { return Integer.parseInt(text(id)); } catch (Exception e) { return 0; }
     }
 
+    // SwitchCompat: under AppCompatActivity the layout <Switch> elements
+    // inflate as SwitchCompat (NOT android.widget.Switch subclasses).
     private boolean sw(int id) {
-        Switch s = findViewById(id);
+        SwitchCompat s = findViewById(id);
         return s != null && s.isChecked();
     }
 
     private void setSw(int id, boolean on) {
-        Switch s = findViewById(id);
+        SwitchCompat s = findViewById(id);
         if (s != null) s.setChecked(on);
+    }
+
+    /** Appearance radio rows (her order, 2026-11-01) — same three choices
+     *  and row shape as the client's Settings: System / Dark Mode /
+     *  Light Mode. Persisted + applied at once via the gen-local
+     *  ThemeSettings (AppCompatDelegate recreates the UI, app-wide). */
+    private void buildThemeRows() {
+        final String[][] rows = {
+            { ThemeSettings.MODE_SYSTEM, "System", "Follow device setting" },
+            { ThemeSettings.MODE_DARK, "Dark Mode", "Always use the dark theme" },
+            { ThemeSettings.MODE_LIGHT, "Light Mode", "Always use the light theme" },
+        };
+        themeList.removeAllViews();
+        String current = ThemeSettings.getMode(this);
+        for (final String[] row : rows) {
+            boolean selected = row[0].equals(current);
+            LinearLayout item = new LinearLayout(this);
+            item.setOrientation(LinearLayout.HORIZONTAL);
+            item.setGravity(Gravity.CENTER_VERTICAL);
+            item.setPadding(dp(12), dp(10), dp(12), dp(10));
+            item.setBackgroundResource(selected ? R.drawable.cc_card_selected : R.drawable.cc_card_plain);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = dp(6);
+            item.setLayoutParams(lp);
+
+            TextView radio = new TextView(this);
+            radio.setText(selected ? "●" : "○");
+            radio.setTextSize(16);
+            radio.setTextColor(getResources().getColor(
+                selected ? R.color.cc_accent : R.color.cc_muted));
+            item.addView(radio);
+
+            LinearLayout texts = new LinearLayout(this);
+            texts.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+            tlp.leftMargin = dp(10);
+            texts.setLayoutParams(tlp);
+            TextView title = new TextView(this);
+            title.setText(row[1]); title.setTextSize(15);
+            title.setTextColor(getResources().getColor(R.color.cc_ink));
+            TextView desc = new TextView(this);
+            desc.setText(row[2]); desc.setTextSize(12);
+            desc.setTextColor(getResources().getColor(R.color.cc_muted));
+            texts.addView(title); texts.addView(desc);
+            item.addView(texts);
+
+            if (selected) {
+                TextView check = new TextView(this);
+                check.setText("✓"); check.setTextSize(16);
+                check.setTextColor(getResources().getColor(R.color.cc_accent));
+                item.addView(check);
+            }
+            item.setOnClickListener(v -> {
+                ThemeSettings.setMode(GeneratorActivity.this, row[0]);
+                ThemeSettings.applySaved(GeneratorActivity.this);
+                buildThemeRows();
+                brandedToast("Theme: " + row[1]);
+            });
+            themeList.addView(item);
+        }
     }
 
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + 0.5f); }

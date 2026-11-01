@@ -18,7 +18,7 @@
          android:layout_width="match_parent"
          android:gravity="center_vertical"
          android:textAppearance="?android:attr/textAppearanceSmall"
-         android:textColor="@color/black"
+         android:textColor="?android:attr/textColorPrimary"
          android:paddingLeft="7dp"
          android:layout_weight="1"
          android:text="Server"

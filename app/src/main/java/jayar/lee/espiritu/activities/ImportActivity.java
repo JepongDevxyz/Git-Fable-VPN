@@ -1,6 +1,5 @@
 package jayar.lee.espiritu.activities;
 
-import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -9,8 +8,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import java.util.List;
 
@@ -36,10 +37,12 @@ import jayar.lee.espiritu.protocols.ServerProfile;
  *    buildAll() creates all 13 service profiles.
  * Nothing here depends on the old BuildConfig remote-config raw links.
  */
-public class ImportActivity extends Activity {
+public class ImportActivity extends AppCompatActivity {
 
     private EditText pasteField, passField, urlField;
-    private Switch autoSwitch;
+    // SwitchCompat: under AppCompatActivity the layout <Switch> inflates
+    // as SwitchCompat (it does NOT extend android.widget.Switch).
+    private SwitchCompat autoSwitch;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

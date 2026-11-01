@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-	<style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+	<!-- DayNight (2026-11-01): the Settings System / Dark / Light choice is
+	     pushed into AppCompatDelegate at startup; a DayNight parent is what
+	     makes every AppCompat widget/dialog follow it app-wide. The cc_
+	     token palettes (values / values-night) flip with the same mode. -->
+	<style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
 		<item name="colorPrimary">@color/colorPrimary</item>
 		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
 		<item name="colorAccent">@color/colorAccent</item>

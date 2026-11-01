@@ -3,6 +3,8 @@ package jayar.lee.espiritu;
 import android.app.Application;
 import android.content.SharedPreferences;
 
+import jayar.lee.espiritu.theme.ThemeSettings;
+
 /**
  * Application class for the standalone Git Fable Generator (admin tool).
  *
@@ -19,6 +21,9 @@ public class GenApplication extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
+        // Dark/Light mode: apply the saved Appearance choice process-wide
+        // before anything UI-related exists (DayNight theme + cc_ tokens).
+        ThemeSettings.applySaved(this);
         mainApp = GenApplication.this;
         privatePrefs = getSharedPreferences(PREFS_GERAL, MODE_PRIVATE);
     }

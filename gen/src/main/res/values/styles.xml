@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Same application theme as the client (GeneratorActivity was
-         registered under the client's @style/AppTheme). -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+         registered under the client's @style/AppTheme). DayNight since
+         2026-11-01 so the Generator's Appearance choice (System / Dark /
+         Light, via AppCompatDelegate) syncs this app too. -->
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>

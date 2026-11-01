@@ -9,6 +9,7 @@ import androidx.annotation.RequiresApi;
 
 import jayar.lee.espiritu.activities.OpenVPNClient;
 import jayar.lee.espiritu.service.OpenVPNService;
+import jayar.lee.espiritu.theme.ThemeSettings;
 import jayar.lee.espiritu.thread.TopExceptionHandler;
 import jayar.lee.espiritu.utils.SecurePreferences;
 import jayar.lee.espiritu.utils.util;
@@ -24,6 +25,9 @@ public class HarliesApplication extends Application
     public void onCreate()
     {
         super.onCreate();
+        // Dark/Light mode: apply the saved Settings choice process-wide
+        // before anything UI-related exists (DayNight theme + cc_ tokens).
+        ThemeSettings.applySaved(this);
         MainApp = HarliesApplication.this;
         TopExceptionHandler.init(this);
         _defaultSharedPreferences = getSharedPreferences(PREFS_GERAL, MODE_PRIVATE);

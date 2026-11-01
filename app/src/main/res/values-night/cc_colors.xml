@@ -7,13 +7,15 @@
     <color name="cc_line">#24365A</color>
     <color name="cc_ink">#EAF1FF</color>
     <color name="cc_muted">#8FA3C4</color>
-    <color name="cc_accent">#4F8CFF</color>
-    <color name="cc_accent2">#7C5CFF</color>
+    <color name="cc_accent">#4787F7</color>
+    <color name="cc_accent2">#7455F5</color>
     <color name="cc_error">#FF6B6B</color>
     <color name="cc_connected">#22E07A</color>
     <color name="cc_connected_glow">#3DFF7A</color>
     <color name="cc_disconnected">#5F7194</color>
     <color name="cc_graph_up">#39A0FF</color>
     <color name="cc_graph_down">#3DFF7A</color>
+    <color name="cc_btn_grad_start">#2E63C8</color>
+    <color name="cc_btn_grad_end">#7455F5</color>
     <color name="cc_on_accent">#FFFFFF</color>
 </resources>
