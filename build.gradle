@@ -1,3 +1,12 @@
+buildscript {
+    dependencies {
+        // R8 override: AGP 8.7's bundled R8 fails record desugaring on the
+        // WireGuard tunnel library (Statistics$PeerStats is a Java record).
+        // Verified locally: R8 8.13.25 dexes tunnel/libv2ray/collection jars cleanly.
+        classpath 'com.android.tools:r8:8.13.25'
+    }
+}
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     id 'com.android.application' version '8.7.3' apply false
