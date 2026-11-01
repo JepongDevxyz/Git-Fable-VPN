@@ -62,6 +62,7 @@ android {
       }
     
     compileOptions {
+		coreLibraryDesugaringEnabled true
 		sourceCompatibility JavaVersion.VERSION_11
 		targetCompatibility JavaVersion.VERSION_11
 	}
@@ -124,6 +125,7 @@ dependencies {
     //   v1.260327.1), restored into app/libs from binstore chunks;
     //   resolved via the settings-level flatDir repository.
     implementation(name: 'libv2ray', ext: 'aar')
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // - WireGuard: official tunnel library from Maven Central.
     implementation 'com.wireguard.android:tunnel:1.0.20260102'
 }
