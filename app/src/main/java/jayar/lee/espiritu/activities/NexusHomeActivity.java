@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 import jayar.lee.espiritu.config.ConfigDataBase;
 import jayar.lee.espiritu.config.ConfigUtil;
@@ -39,10 +40,16 @@ import jayar.lee.espiritu.logger.hLogStatus;
 import jayar.lee.espiritu.protocols.ConnectionDisplay;
 import jayar.lee.espiritu.protocols.FeedUpdater;
 import jayar.lee.espiritu.protocols.LegacyEnginePlan;
+import jayar.lee.espiritu.protocols.Protocol;
 import jayar.lee.espiritu.protocols.ServerProfile;
 import jayar.lee.espiritu.protocols.TunnelSettings;
+import jayar.lee.espiritu.protocols.WireGuardConfParser;
+import jayar.lee.espiritu.protocols.XrayConfigGenerator;
+import jayar.lee.espiritu.service.CoreTunnelStatus;
 import jayar.lee.espiritu.service.InjectorService;
 import jayar.lee.espiritu.service.OpenVPNService;
+import jayar.lee.espiritu.service.WgVpnService;
+import jayar.lee.espiritu.service.XrayVpnService;
 import jayar.lee.espiritu.utils.FileUtils;
 import jayar.lee.espiritu.utils.util;
 import jayar.lee.espiritu.view.GraphHelper;
@@ -90,11 +97,25 @@ import net.openvpn.openvpn.PrefUtil;
  *    history exactly like the legacy client's chart.
  *  - Statistics bottom-nav -> NexusStatisticsActivity (own screen).
  *  - NO Server Generator here (admin-only separate app, her order).
+ *
+ * PHASE 2 (native cores): Xray-family profiles (VLESS/VMess/Trojan/
+ * Shadowsocks/Hysteria2) no longer fall back to the legacy engine —
+ * the ring generates an Xray config (XrayConfigGenerator) and starts
+ * XrayVpnService (bundled libv2ray core); WireGuard profiles start
+ * WgVpnService (official tunnel library). Core tunnels report through
+ * CoreTunnelStatus; the ring, uptime, speeds and chart read it exactly
+ * like the legacy feeds. SINGLE ACTIVE TUNNEL RULE: the ring stops
+ * whichever tunnel is up (legacy or core) instead of starting a second
+ * one, and the core start paths refuse while the legacy engine is up.
  */
 public class NexusHomeActivity extends OpenVPNClientBase
         implements hLogStatus.StateListener, hLogStatus.ByteCountListener, SettingsConstants {
 
     private static final int START_BIND_CALLED = 1;
+    private static final int START_CORE_CALLED = 2;
+
+    /** Core service intent waiting on the VpnService.prepare grant. */
+    private Intent pendingCoreIntent;
 
     private FrameLayout ring;
     private TextView ringText;
@@ -108,6 +129,10 @@ public class NexusHomeActivity extends OpenVPNClientBase
     private ConfigDataBase serverData, networksData;
     private PrefUtil prefs;
     private Handler handler = new Handler();
+    /** Core status events arrive off the main thread: always hop.
+     *  Declared after handler — a field initializer may not forward-
+     *  reference it. */
+    private final CoreTunnelStatus.Listener coreListener = () -> handler.post(this::onCoreStatusChanged);
 
     private volatile boolean connected;
     private volatile String activeHost = "";
@@ -168,21 +193,27 @@ public class NexusHomeActivity extends OpenVPNClientBase
         findViewById(R.id.cc_change_location).setOnClickListener(toServers);
         findViewById(R.id.cc_nav_locations).setOnClickListener(toServers);
 
-        ring.setOnClickListener(v -> startOrStopTunnel());
+        ring.setOnClickListener(v -> onRingTap());
     }
 
     @Override protected void onResume() {
         super.onResume();
         hLogStatus.addStateListener(this);
         hLogStatus.addByteCountListener(this);
+        CoreTunnelStatus.addListener(coreListener);
         refreshHeader();
         refreshInfoCard();
         // Returning to Home with a tunnel already up: the state listener
         // may not replay, so take the connected flag from the stats core.
         if (hLogStatus.isTunnelActive() && _upDateBytes.isConnected()) connected = true;
         if (!hLogStatus.isTunnelActive()) connected = false;
-        renderState(hLogStatus.isTunnelActive(), connected);
-        if (hLogStatus.isTunnelActive()) {
+        renderState(hLogStatus.isTunnelActive() || CoreTunnelStatus.isActive(),
+            connected || CoreTunnelStatus.isConnected());
+        if (CoreTunnelStatus.isConnected()) {
+            ServerProfile sel = ProfilePrefs.selected();
+            if (sel != null) { activeHost = sel.host; activePort = sel.port; }
+        }
+        if (hLogStatus.isTunnelActive() || CoreTunnelStatus.isConnected()) {
             if (graph != null) graph.start();
             startStatsTicker();
         }
@@ -191,6 +222,7 @@ public class NexusHomeActivity extends OpenVPNClientBase
 
     @Override protected void onPause() {
         super.onPause();
+        CoreTunnelStatus.removeListener(coreListener);
         statsHandler.removeCallbacks(statsTask);
     }
 
@@ -235,7 +267,7 @@ public class NexusHomeActivity extends OpenVPNClientBase
             ipLine.setText("Server IP: " + (legacyName.isEmpty() ? "—" : legacyName));
             locationLine.setText("Location: " + (legacyName.isEmpty() ? "No server selected" : legacyName));
         }
-        if (!connected) {
+        if (!connected && !CoreTunnelStatus.isConnected()) {
             pingLine.setText("Ping: —");
             uptimeLine.setText("Uptime: 00:00:00");
             upSpeed.setText(ConnectionDisplay.formatRate(0));
@@ -301,11 +333,34 @@ public class NexusHomeActivity extends OpenVPNClientBase
         final long upRate = (lastOut >= 0 && dt > 0) ? Math.max(0, (out - lastOut) * 1000 / dt) : 0;
         lastIn = in; lastOut = out; lastByteAt = now;
         handler.post(() -> {
-            if (connected) {
+            if (connected || CoreTunnelStatus.isConnected()) {
                 downSpeed.setText(ConnectionDisplay.formatRate(downRate));
                 upSpeed.setText(ConnectionDisplay.formatRate(upRate));
             }
         });
+    }
+
+    // ---------------- core tunnel status (Phase 2) ----------------
+
+    /** Runs on the main thread (the listener hops via handler.post). */
+    private void onCoreStatusChanged() {
+        CoreTunnelStatus.State st = CoreTunnelStatus.getState();
+        renderState(hLogStatus.isTunnelActive() || CoreTunnelStatus.isActive(),
+            connected || CoreTunnelStatus.isConnected());
+        if (CoreTunnelStatus.isConnected()) {
+            ServerProfile sel = ProfilePrefs.selected();
+            if (sel != null) { activeHost = sel.host; activePort = sel.port; }
+            startStatsTicker();
+            if (graph != null) graph.start();
+            measurePing();
+        } else if (st == CoreTunnelStatus.State.ERROR) {
+            String msg = CoreTunnelStatus.getMessage();
+            if (!msg.isEmpty()) brandedToast(msg);
+            refreshInfoCard();
+        } else if (st == CoreTunnelStatus.State.IDLE) {
+            statsHandler.removeCallbacks(statsTask);
+            refreshInfoCard();
+        }
     }
 
     // ---------------- stats ticker / ping ----------------
@@ -316,6 +371,19 @@ public class NexusHomeActivity extends OpenVPNClientBase
     }
 
     private void tickStats() {
+        // Core tunnels (Xray / WireGuard) report through
+        // CoreTunnelStatus; their services feed the byte-count fan-out
+        // (speeds + chart) themselves, so the ticker only renders
+        // uptime + ping here.
+        if (CoreTunnelStatus.isActive()) {
+            if (CoreTunnelStatus.isConnected() && CoreTunnelStatus.getStartedAt() > 0) {
+                uptimeLine.setText("Uptime: " + ConnectionDisplay.formatUptime(
+                    System.currentTimeMillis() - CoreTunnelStatus.getStartedAt()));
+            }
+            pingLine.setText("Ping: " + ConnectionDisplay.formatPing(
+                CoreTunnelStatus.isConnected() ? pingMs : -1));
+            return;
+        }
         if (!hLogStatus.isTunnelActive()) return;
         // Mirror OpenVPNClient.show_stats(): feed the byte-count listeners
         // (and therefore the chart + speeds) from the live tunnel counters.
@@ -353,12 +421,177 @@ public class NexusHomeActivity extends OpenVPNClientBase
 
     // ---------------- connect machinery (ported from OpenVPNClient) ----------------
 
+    /**
+     * Ring tap routing. SINGLE ACTIVE TUNNEL RULE: if any tunnel is up
+     * (legacy engine or a native core), the tap stops THAT tunnel —
+     * a second one is never started over it. Otherwise the selected
+     * profile's family decides the engine: Xray family -> XrayVpnService,
+     * WireGuard -> WgVpnService, everything else -> the legacy path
+     * (startOrStopTunnel, unchanged Phase 1 behaviour).
+     */
+    private void onRingTap() {
+        if (CoreTunnelStatus.isActive()) { stopCoreTunnel(); return; }
+        if (hLogStatus.isTunnelActive()) { stopTunnelService(); return; }
+        ServerProfile sel = ProfilePrefs.selected();
+        if (sel != null && XrayConfigGenerator.isXrayProtocol(sel.protocol)) {
+            startXrayTunnel(sel);
+        } else if (sel != null && sel.protocol == Protocol.WIREGUARD) {
+            startWireGuardTunnel(sel);
+        } else {
+            startOrStopTunnel();
+        }
+    }
+
     private void startOrStopTunnel() {
         if (hLogStatus.isTunnelActive()) {
             stopTunnelService();
+        } else if (CoreTunnelStatus.isActive()) {
+            // Single active tunnel: never start legacy over a core.
+            stopCoreTunnel();
         } else {
             mEditor.putInt("loadOnce", 0).apply();
             if (checkConfiguration()) start_connect();
+        }
+    }
+
+    // ---------------- native core tunnels (Phase 2) ----------------
+
+    private void startXrayTunnel(ServerProfile sel) {
+        if (Build.VERSION.SDK_INT < 24) {
+            brandedToast("This protocol's core needs Android 7.0+ — the legacy protocols still work on this device");
+            return;
+        }
+        TunnelSettings ts = loadTunnelSettings();
+        String json;
+        try {
+            json = XrayConfigGenerator.generate(sel, ts, resolveProfileByName(ts.doubleVpnProfileName));
+        } catch (RuntimeException e) {
+            // UnsupportedOperationException (wrong family) and
+            // IllegalArgumentException (profile cannot connect) both
+            // carry a user-readable message.
+            brandedToast(e.getMessage() == null ? "This profile cannot run on the Xray core" : e.getMessage());
+            return;
+        }
+        File file = new File(getFilesDir(), "xray-config.json");
+        if (!writeTextFile(file, json)) {
+            brandedToast("Could not write the core config");
+            return;
+        }
+        Intent intent = new Intent(this, XrayVpnService.class).setAction(XrayVpnService.ACTION_START);
+        intent.putExtra(XrayVpnService.EXTRA_CONFIG_PATH, file.getAbsolutePath());
+        intent.putExtra(XrayVpnService.EXTRA_PROFILE_NAME, sel.displayName());
+        intent.putExtra(XrayVpnService.EXTRA_DNS1, ts.dns1);
+        intent.putExtra(XrayVpnService.EXTRA_DNS2, ts.dns2);
+        intent.putExtra(XrayVpnService.EXTRA_MTU, ts.mtu > 0 ? ts.mtu : 1500);
+        intent.putExtra(XrayVpnService.EXTRA_SPLIT_ENABLED, ts.splitTunneling);
+        if (ts.splitTunneling) {
+            intent.putStringArrayListExtra(XrayVpnService.EXTRA_SPLIT_APPS, new ArrayList<>(ts.splitApps));
+        }
+        activeHost = sel.host;
+        activePort = sel.port;
+        prepareThenStartCore(intent);
+    }
+
+    private void startWireGuardTunnel(ServerProfile sel) {
+        if (Build.VERSION.SDK_INT < 24) {
+            brandedToast("WireGuard needs Android 7.0+ — the legacy protocols still work on this device");
+            return;
+        }
+        if (sel.wgPrivateKey == null || sel.wgPrivateKey.isEmpty()
+            || sel.wgPublicKey == null || sel.wgPublicKey.isEmpty()) {
+            brandedToast("WireGuard profile is missing its keys — re-import its .conf file");
+            return;
+        }
+        File file = new File(getFilesDir(), "wireguard.conf");
+        if (!writeTextFile(file, WireGuardConfParser.toConf(sel))) {
+            brandedToast("Could not write the WireGuard config");
+            return;
+        }
+        TunnelSettings ts = loadTunnelSettings();
+        Intent intent = new Intent(this, WgVpnService.class).setAction(WgVpnService.ACTION_START);
+        intent.putExtra(WgVpnService.EXTRA_CONFIG_PATH, file.getAbsolutePath());
+        intent.putExtra(WgVpnService.EXTRA_PROFILE_NAME, sel.displayName());
+        intent.putExtra(WgVpnService.EXTRA_SPLIT_ENABLED, ts.splitTunneling);
+        if (ts.splitTunneling) {
+            intent.putStringArrayListExtra(WgVpnService.EXTRA_SPLIT_APPS, new ArrayList<>(ts.splitApps));
+        }
+        activeHost = sel.host;
+        activePort = sel.port;
+        prepareThenStartCore(intent);
+    }
+
+    /** Same VpnService.prepare grant flow as the legacy start_connect. */
+    private void prepareThenStartCore(Intent serviceIntent) {
+        Intent perm = VpnService.prepare(this);
+        if (perm != null) {
+            pendingCoreIntent = serviceIntent;
+            try {
+                startActivityForResult(perm, START_CORE_CALLED);
+            } catch (ActivityNotFoundException e) {
+                pendingCoreIntent = null;
+                brandedToast("VPN permission request failed");
+            }
+            return;
+        }
+        launchCoreService(serviceIntent);
+    }
+
+    private void launchCoreService(Intent intent) {
+        // Both core services call startForeground() immediately, so the
+        // foreground-service start is valid (and required on O+) for each.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent);
+        else startService(intent);
+    }
+
+    private void stopCoreTunnel() {
+        CoreTunnelStatus.Core core = CoreTunnelStatus.getActiveCore();
+        if (core == CoreTunnelStatus.Core.XRAY) {
+            startService(new Intent(this, XrayVpnService.class).setAction(XrayVpnService.ACTION_STOP));
+        } else if (core == CoreTunnelStatus.Core.WIREGUARD) {
+            startService(new Intent(this, WgVpnService.class).setAction(WgVpnService.ACTION_STOP));
+        }
+        statsHandler.removeCallbacks(statsTask);
+    }
+
+    /** TunnelSettings from the same prefs the Settings screen writes. */
+    private TunnelSettings loadTunnelSettings() {
+        TunnelSettings ts = new TunnelSettings();
+        try {
+            SharedPreferences sp = getSharedPreferences(NexusSettingsActivity.PREFS, MODE_PRIVATE);
+            ts.killSwitch = sp.getBoolean(TunnelSettings.KEY_KILL_SWITCH, false);
+            ts.splitTunneling = sp.getBoolean(TunnelSettings.KEY_SPLIT, false);
+            java.util.Set<String> apps = sp.getStringSet(TunnelSettings.KEY_SPLIT_APPS, null);
+            if (apps != null) ts.splitApps = new ArrayList<>(apps);
+            ts.doubleVpn = sp.getBoolean(TunnelSettings.KEY_DOUBLE_VPN, false);
+            ts.doubleVpnProfileName = sp.getString(TunnelSettings.KEY_DOUBLE_VPN_PROFILE, "");
+            ts.dnsLeakProtection = sp.getBoolean(TunnelSettings.KEY_DNS_LEAK, false);
+            ts.mtu = sp.getInt(TunnelSettings.KEY_MTU, 0);
+            String d1 = sp.getString(TunnelSettings.KEY_DNS1, ts.dns1);
+            if (d1 != null && !d1.trim().isEmpty()) ts.dns1 = d1;
+            String d2 = sp.getString(TunnelSettings.KEY_DNS2, ts.dns2);
+            if (d2 != null && !d2.trim().isEmpty()) ts.dns2 = d2;
+        } catch (Exception ignored) {
+            // A mistyped pref must never break connect: model defaults apply.
+        }
+        return ts;
+    }
+
+    private ServerProfile resolveProfileByName(String name) {
+        if (name == null || name.trim().isEmpty()) return null;
+        try {
+            for (ServerProfile p : ProfilePrefs.load()) {
+                if (p != null && (name.equals(p.displayName()) || name.equals(p.name))) return p;
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private boolean writeTextFile(File file, String text) {
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            out.write(text.getBytes("UTF-8"));
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -413,6 +646,12 @@ public class NexusHomeActivity extends OpenVPNClientBase
     @Override protected void onActivityResult(int request, int result, Intent data) {
         if (request == START_BIND_CALLED) {
             if (result == RESULT_OK) start_connect();
+            return;
+        }
+        if (request == START_CORE_CALLED) {
+            Intent pending = pendingCoreIntent;
+            pendingCoreIntent = null;
+            if (result == RESULT_OK && pending != null) launchCoreService(pending);
             return;
         }
         super.onActivityResult(request, result, data);

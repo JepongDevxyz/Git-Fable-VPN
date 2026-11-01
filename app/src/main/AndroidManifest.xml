@@ -9,6 +9,13 @@
 		android:normalScreens="true"
 		android:smallScreens="true"
 		android:xlargeScreens="true" />
+
+	<!-- The bundled native cores (libv2ray.aar, WireGuard tunnel) declare
+	     minSdk 24 while the app still supports API 21 for the legacy
+	     engine. The override lets the merger accept them; the core
+	     services check SDK_INT at runtime and report an honest error on
+	     API 21-23 instead of loading the native libraries. -->
+	<uses-sdk tools:overrideLibrary="go.libv2ray.gojni, com.wireguard.android.tunnel"/>
     
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -52,6 +59,21 @@
 				<action android:name="android.net.VpnService" />
 			</intent-filter>
 		</service>
+		<!-- Xray core (VLESS/VMess/Trojan/Shadowsocks/Hysteria2): a real
+		     VpnService, declared exactly like OpenVPNService. -->
+		<service android:name="jayar.lee.espiritu.service.XrayVpnService"
+			android:permission="android.permission.BIND_VPN_SERVICE"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="android.net.VpnService" />
+			</intent-filter>
+		</service>
+		<!-- WireGuard control service: NOT a VpnService itself — the
+		     tunnel library's GoBackend$VpnService (merged from its AAR
+		     manifest) owns the interface; this service drives it. -->
+		<service
+			android:name="jayar.lee.espiritu.service.WgVpnService"
+			android:exported="false"/>
 		<activity
 			android:name="jayar.lee.espiritu.activities.SplashScreen"
 			android:theme="@style/SplashTheme"

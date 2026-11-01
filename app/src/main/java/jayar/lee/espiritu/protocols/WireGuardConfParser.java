@@ -8,6 +8,7 @@ public final class WireGuardConfParser {
     public static ServerProfile parse(String text) {
         ServerProfile p = new ServerProfile(Protocol.WIREGUARD);
         p.name = "WireGuard";
+        if (text == null) text = ""; // fall through: defaults (port 51820) still apply
         String section = "";
         for (String raw : text.split("[\\r\\n]+")) {
             String line = raw.trim();
@@ -43,19 +44,24 @@ public final class WireGuardConfParser {
         return p;
     }
 
-    /** Render a profile back to .conf text (for export / WireGuard backend). */
+    private static String nz(String s) { return s == null ? "" : s; }
+
+    /** Render a profile back to .conf text (for export / WireGuard backend).
+     *  Null-field safe: hand-built or partially parsed profiles render with
+     *  empty values (the WireGuard library then rejects them with a clear
+     *  BadConfigException) instead of throwing an NPE here. */
     public static String toConf(ServerProfile p) {
         StringBuilder sb = new StringBuilder();
         sb.append("[Interface]\n");
-        sb.append("PrivateKey = ").append(p.wgPrivateKey).append("\n");
-        if (!p.wgAddress.isEmpty()) sb.append("Address = ").append(p.wgAddress).append("\n");
-        if (!p.wgDns.isEmpty()) sb.append("DNS = ").append(p.wgDns).append("\n");
+        sb.append("PrivateKey = ").append(nz(p.wgPrivateKey)).append("\n");
+        if (!nz(p.wgAddress).isEmpty()) sb.append("Address = ").append(p.wgAddress).append("\n");
+        if (!nz(p.wgDns).isEmpty()) sb.append("DNS = ").append(p.wgDns).append("\n");
         if (p.wgMtu > 0) sb.append("MTU = ").append(p.wgMtu).append("\n");
         sb.append("\n[Peer]\n");
-        sb.append("PublicKey = ").append(p.wgPublicKey).append("\n");
-        if (!p.wgPresharedKey.isEmpty()) sb.append("PresharedKey = ").append(p.wgPresharedKey).append("\n");
-        sb.append("AllowedIPs = ").append(p.wgAllowedIPs.isEmpty() ? "0.0.0.0/0" : p.wgAllowedIPs).append("\n");
-        sb.append("Endpoint = ").append(p.host).append(":").append(p.port > 0 ? p.port : 51820).append("\n");
+        sb.append("PublicKey = ").append(nz(p.wgPublicKey)).append("\n");
+        if (!nz(p.wgPresharedKey).isEmpty()) sb.append("PresharedKey = ").append(p.wgPresharedKey).append("\n");
+        sb.append("AllowedIPs = ").append(nz(p.wgAllowedIPs).isEmpty() ? "0.0.0.0/0" : p.wgAllowedIPs).append("\n");
+        sb.append("Endpoint = ").append(nz(p.host)).append(":").append(p.port > 0 ? p.port : 51820).append("\n");
         sb.append("PersistentKeepalive = 25\n");
         return sb.toString();
     }

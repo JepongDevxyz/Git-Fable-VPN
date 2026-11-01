@@ -14,6 +14,11 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url 'https://maven.google.com' }
         maven { url 'https://jitpack.io' }
+        // Local AARs restored from binstore chunks into app/libs
+        // (restore_binaries.py runs before Gradle in CI; the app
+        // module's restoreBinaries task covers local builds).
+        // FAIL_ON_PROJECT_REPOS requires this at settings level.
+        flatDir { dirs "$rootDir/app/libs" }
     }
 }
 rootProject.name = "Git Fable VPN"

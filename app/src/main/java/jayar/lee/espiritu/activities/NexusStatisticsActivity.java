@@ -13,6 +13,7 @@ import jayar.lee.espiritu.logger.HarlieLogs;
 import jayar.lee.espiritu.logger.hLogStatus;
 import jayar.lee.espiritu.protocols.ConnectionDisplay;
 import jayar.lee.espiritu.protocols.ServerProfile;
+import jayar.lee.espiritu.service.CoreTunnelStatus;
 import jayar.lee.espiritu.service.OpenVPNService;
 import jayar.lee.espiritu.view.GraphHelper;
 
@@ -30,9 +31,16 @@ import jayar.lee.espiritu.view.GraphHelper;
  *    current server/payload names from ConfigUtil.
  *  - Logs button opens the existing HarlieLogs screen.
  * Anything genuinely unavailable outside a live tunnel shows "—".
+ *
+ * Phase 2: native-core tunnels (Xray / WireGuard) report through
+ * CoreTunnelStatus instead of hLogStatus; when a core is active this
+ * screen reads state, session totals and uptime from it, with the
+ * same widgets. Core events arrive off the main thread and hop via
+ * handler.post before touching any view.
  */
 public class NexusStatisticsActivity extends OpenVPNClientBase
-        implements hLogStatus.StateListener, hLogStatus.ByteCountListener {
+        implements hLogStatus.StateListener, hLogStatus.ByteCountListener,
+        CoreTunnelStatus.Listener {
 
     private TextView stateLine, serverLine, uptimeLine;
     private TextView totalDown, totalUp, speedDown, speedUp;
@@ -80,17 +88,24 @@ public class NexusStatisticsActivity extends OpenVPNClientBase
         super.onResume();
         hLogStatus.addStateListener(this);
         hLogStatus.addByteCountListener(this);
+        CoreTunnelStatus.addListener(this);
         connected = hLogStatus.isTunnelActive() && _upDateBytes.isConnected();
         renderServer();
         renderState();
-        if (graph != null && hLogStatus.isTunnelActive()) graph.start();
+        if (graph != null && (hLogStatus.isTunnelActive() || CoreTunnelStatus.isActive())) graph.start();
         statsHandler.removeCallbacks(statsTask);
         statsHandler.post(statsTask);
     }
 
     @Override protected void onPause() {
         super.onPause();
+        CoreTunnelStatus.removeListener(this);
         statsHandler.removeCallbacks(statsTask);
+    }
+
+    /** CoreTunnelStatus callback: fired off the main thread — hop first. */
+    @Override public void onCoreStatusChanged() {
+        handler.post(() -> { renderState(); renderServer(); });
     }
 
     @Override protected void onDestroy() {
@@ -113,6 +128,12 @@ public class NexusStatisticsActivity extends OpenVPNClientBase
     }
 
     private void renderState() {
+        if (CoreTunnelStatus.isActive()) {
+            CoreTunnelStatus.State st = CoreTunnelStatus.getState();
+            stateLine.setText("State: " + (st == CoreTunnelStatus.State.CONNECTED ? "Connected"
+                : st == CoreTunnelStatus.State.DISCONNECTING ? "Disconnecting…" : "Connecting…"));
+            return;
+        }
         boolean active = hLogStatus.isTunnelActive();
         stateLine.setText("State: " + (!active ? "Disconnected" : connected ? "Connected" : "Connecting…"));
         if (!active) {
@@ -125,6 +146,17 @@ public class NexusStatisticsActivity extends OpenVPNClientBase
     }
 
     private void tick() {
+        // Core tunnel: totals + uptime come from CoreTunnelStatus; the
+        // core services feed the byte-count fan-out (speeds + chart).
+        if (CoreTunnelStatus.isActive()) {
+            if (CoreTunnelStatus.isConnected() && CoreTunnelStatus.getStartedAt() > 0) {
+                uptimeLine.setText("Uptime: " + ConnectionDisplay.formatUptime(
+                    System.currentTimeMillis() - CoreTunnelStatus.getStartedAt()));
+            }
+            totalDown.setText(ConnectionDisplay.formatBytes(CoreTunnelStatus.getTotalRx()));
+            totalUp.setText(ConnectionDisplay.formatBytes(CoreTunnelStatus.getTotalTx()));
+            return;
+        }
         if (!hLogStatus.isTunnelActive()) { renderState(); return; }
         try {
             if (!"UDP".equals(mConfig.getNetworkType())) {
@@ -171,7 +203,7 @@ public class NexusStatisticsActivity extends OpenVPNClientBase
         final long upRate = (lastOut >= 0 && dt > 0) ? Math.max(0, (out - lastOut) * 1000 / dt) : 0;
         lastIn = in; lastOut = out; lastByteAt = now;
         handler.post(() -> {
-            if (hLogStatus.isTunnelActive()) {
+            if (hLogStatus.isTunnelActive() || CoreTunnelStatus.isActive()) {
                 speedDown.setText(ConnectionDisplay.formatRate(downRate));
                 speedUp.setText(ConnectionDisplay.formatRate(upRate));
             }

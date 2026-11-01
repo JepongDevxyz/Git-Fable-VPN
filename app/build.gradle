@@ -112,4 +112,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.lifecycle:lifecycle-runtime:2.5.1"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.5.1"
+    // Phase 2 native cores (Xray family + WireGuard):
+    // - libv2ray.aar: AndroidLibXrayLite v26.10.29 (Xray-core
+    //   v1.260327.1), restored into app/libs from binstore chunks;
+    //   resolved via the settings-level flatDir repository.
+    implementation(name: 'libv2ray', ext: 'aar')
+    // - WireGuard: official tunnel library from Maven Central.
+    implementation 'com.wireguard.android:tunnel:1.0.20260102'
 }
